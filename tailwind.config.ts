@@ -10,6 +10,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      maxWidth: {
+        "desktop": "1640px",
+      },
       colors: {
         resq: {
           navy: "#071A2F",
@@ -22,6 +25,8 @@ const config: Config = {
           "green-hover": "#138856",
           "green-bright": "#25C982",
           "green-light": "#E8F8F1",
+          gold: "#F4B942",
+          "gold-light": "#FEF7E6",
           orange: "#FF9F43",
           "orange-light": "#FFF5EB",
           red: "#EF4444",
@@ -36,22 +41,29 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "Manrope", "system-ui", "sans-serif"],
       },
       boxShadow: {
         card: "0 1px 3px rgba(16, 24, 40, 0.05), 0 1px 2px rgba(16, 24, 40, 0.03)",
-        floating: "0 12px 32px -4px rgba(7, 26, 47, 0.12), 0 4px 12px -2px rgba(7, 26, 47, 0.08)",
-        glow: "0 0 24px rgba(23, 105, 255, 0.25)",
-        "glow-green": "0 0 24px rgba(37, 201, 130, 0.3)",
+        "card-hover": "0 8px 24px -4px rgba(7, 26, 47, 0.08), 0 2px 6px -1px rgba(7, 26, 47, 0.04)",
+        floating: "0 16px 40px -8px rgba(7, 26, 47, 0.14), 0 6px 16px -2px rgba(7, 26, 47, 0.06)",
+        glow: "0 0 24px rgba(23, 105, 255, 0.28)",
+        "glow-green": "0 0 24px rgba(37, 201, 130, 0.35)",
+        "glow-gold": "0 0 24px rgba(244, 185, 66, 0.35)",
       },
       animation: {
         "pulse-subtle": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "ripple": "ripple 2s linear infinite",
+        "float": "float 6s ease-in-out infinite",
       },
       keyframes: {
         ripple: {
           "0%": { transform: "scale(0.8)", opacity: "1" },
           "100%": { transform: "scale(2.4)", opacity: "0" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
         },
       },
     },

@@ -17,16 +17,20 @@ interface PickupVerificationModalProps {
   isOpen: boolean;
   rescueId?: string;
   foodName?: string;
+  donorName?: string;
   onClose: () => void;
   onSuccess?: () => void;
+  onVerified?: () => void;
 }
 
 export default function PickupVerificationModal({
   isOpen,
   rescueId = "RF-10283",
   foodName = "30 KG Paneer Butter Masala & Naan",
+  donorName,
   onClose,
   onSuccess,
+  onVerified,
 }: PickupVerificationModalProps) {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -54,6 +58,7 @@ export default function PickupVerificationModal({
       setIsVerified(true);
       setTimeout(() => {
         if (onSuccess) onSuccess();
+        if (onVerified) onVerified();
         onClose();
       }, 1600);
     } catch (e) {
@@ -61,6 +66,7 @@ export default function PickupVerificationModal({
       setIsVerified(true);
       setTimeout(() => {
         if (onSuccess) onSuccess();
+        if (onVerified) onVerified();
         onClose();
       }, 1600);
     } finally {

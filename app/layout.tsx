@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/ui/Navbar";
-import MobileBottomNav from "@/components/ui/MobileBottomNav";
-import CommandPalette from "@/components/ui/CommandPalette";
-import ToastNotification from "@/components/ui/ToastNotification";
+import AppShell from "@/components/layout/AppShell";
 
 export const metadata: Metadata = {
   title: "RESQFOOD — Rescue Food. Route Hope.",
@@ -34,12 +31,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body className="min-h-screen bg-resq-bg text-resq-text antialiased flex flex-col font-sans">
-        <Navbar />
-        <main className="flex-1 pb-16 md:pb-0">{children}</main>
-        <MobileBottomNav />
-        <CommandPalette />
-        <ToastNotification />
+      <body className="min-h-screen bg-resq-bg text-resq-text antialiased font-sans">
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

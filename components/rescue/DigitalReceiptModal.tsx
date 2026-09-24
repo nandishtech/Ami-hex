@@ -32,6 +32,7 @@ interface DigitalReceiptModalProps {
     waterL?: number;
     verificationHash?: string;
   };
+  rescue?: any;
 }
 
 export default function DigitalReceiptModal({
@@ -53,8 +54,30 @@ export default function DigitalReceiptModal({
     waterL: 15600,
     verificationHash: "RESQ-TX-RF10283-96SC-2026",
   },
+  rescue,
 }: DigitalReceiptModalProps) {
   const printRef = useRef<HTMLDivElement>(null);
+
+  const effectiveData = rescue
+    ? {
+        rescueId: rescue.id || "RF-10283",
+        foodName: rescue.foodName || "30 KG Paneer Butter Masala",
+        quantityKg: rescue.quantityKg || 30,
+        donorName: rescue.donorName || "GreenFork Restaurant",
+        donorAddress: rescue.donorAddress || "100 Feet Road, Indiranagar",
+        recipientName: rescue.recipientName || "Hope Community Shelter",
+        recipientAddress: rescue.recipientAddress || "Old Airport Road, Kodihalli",
+        driverName: rescue.driverName || "Rahul Sharma",
+        pickupTime: rescue.pickupTime || "6:28 PM",
+        deliveryTime: rescue.deliveryTime || rescue.deliveredAt || "6:46 PM",
+        meals: rescue.mealsFed || rescue.meals || 120,
+        co2eKg: rescue.co2eAvoidedKg || rescue.co2eKg || 75,
+        waterL: rescue.waterL || 15600,
+        verificationHash: rescue.verificationHash || "RESQ-TX-RF10283-96SC-2026",
+      }
+    : data;
+
+  const rData = effectiveData;
 
   if (!isOpen) return null;
 
@@ -113,10 +136,10 @@ export default function DigitalReceiptModal({
 
             <div className="text-right">
               <span className="text-xs font-bold text-resq-blue block">
-                {data.rescueId}
+                {rData.rescueId}
               </span>
               <span className="text-[10px] text-slate-400 font-mono">
-                {data.verificationHash}
+                {rData.verificationHash}
               </span>
             </div>
           </div>
@@ -128,10 +151,10 @@ export default function DigitalReceiptModal({
                 Food Rescued
               </span>
               <p className="font-bold text-sm text-resq-navy mt-0.5">
-                {data.foodName}
+                {rData.foodName}
               </p>
               <p className="text-slate-500 mt-0.5 font-semibold">
-                Weight: {data.quantityKg} KG ({data.meals} Meals Supported)
+                Weight: {rData.quantityKg} KG ({rData.meals} Meals Supported)
               </p>
             </div>
 
@@ -140,10 +163,10 @@ export default function DigitalReceiptModal({
                 Transit Logistics
               </span>
               <p className="font-bold text-resq-navy mt-0.5">
-                Driver: {data.driverName}
+                Driver: {rData.driverName}
               </p>
               <p className="text-slate-500 mt-0.5">
-                Pickup: {data.pickupTime} • Delivered: {data.deliveryTime}
+                Pickup: {rData.pickupTime} • Delivered: {rData.deliveryTime}
               </p>
             </div>
           </div>
@@ -156,8 +179,8 @@ export default function DigitalReceiptModal({
                 <span className="text-[10px] uppercase font-bold text-slate-400">
                   Donor Organization
                 </span>
-                <p className="font-bold text-resq-navy">{data.donorName}</p>
-                <p className="text-[11px] text-slate-500">{data.donorAddress}</p>
+                <p className="font-bold text-resq-navy">{rData.donorName}</p>
+                <p className="text-[11px] text-slate-500">{rData.donorAddress}</p>
               </div>
             </div>
 
@@ -167,8 +190,8 @@ export default function DigitalReceiptModal({
                 <span className="text-[10px] uppercase font-bold text-slate-400">
                   Recipient Organization
                 </span>
-                <p className="font-bold text-resq-navy">{data.recipientName}</p>
-                <p className="text-[11px] text-slate-500">{data.recipientAddress}</p>
+                <p className="font-bold text-resq-navy">{rData.recipientName}</p>
+                <p className="text-[11px] text-slate-500">{rData.recipientAddress}</p>
               </div>
             </div>
           </div>
@@ -188,15 +211,15 @@ export default function DigitalReceiptModal({
             <div className="grid grid-cols-3 gap-2 pt-1 text-center">
               <div className="bg-white/80 p-2 rounded-xl">
                 <span className="text-[10px] text-slate-400 block font-medium">Meals</span>
-                <span className="font-bold text-emerald-800 text-sm">+{data.meals}</span>
+                <span className="font-bold text-emerald-800 text-sm">+{rData.meals}</span>
               </div>
               <div className="bg-white/80 p-2 rounded-xl">
                 <span className="text-[10px] text-slate-400 block font-medium">CO2e Avoided</span>
-                <span className="font-bold text-emerald-800 text-sm">+{data.co2eKg} KG</span>
+                <span className="font-bold text-emerald-800 text-sm">+{rData.co2eKg} KG</span>
               </div>
               <div className="bg-white/80 p-2 rounded-xl">
                 <span className="text-[10px] text-slate-400 block font-medium">Water Saved</span>
-                <span className="font-bold text-emerald-800 text-sm">+{data.waterL?.toLocaleString()} L</span>
+                <span className="font-bold text-emerald-800 text-sm">+{rData.waterL?.toLocaleString()} L</span>
               </div>
             </div>
           </div>

@@ -24,6 +24,7 @@ interface DeliveryHandoffModalProps {
   recipientName?: string;
   onClose: () => void;
   onReceiptOpen?: () => void;
+  onVerified?: () => void;
 }
 
 export default function DeliveryHandoffModal({
@@ -34,6 +35,7 @@ export default function DeliveryHandoffModal({
   recipientName = "Hope Community Shelter",
   onClose,
   onReceiptOpen,
+  onVerified,
 }: DeliveryHandoffModalProps) {
   const [recipientOfficer, setRecipientOfficer] = useState("Sister Teresa Mathews (Kitchen Director)");
   const [isConfirming, setIsConfirming] = useState(false);
@@ -78,9 +80,11 @@ export default function DeliveryHandoffModal({
       );
 
       setIsCompleted(true);
+      if (onVerified) onVerified();
     } catch (e) {
       console.warn("Delivery confirm fallback used.");
       setIsCompleted(true);
+      if (onVerified) onVerified();
     } finally {
       setIsConfirming(false);
     }
