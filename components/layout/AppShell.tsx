@@ -19,6 +19,19 @@ export default function AppShell({ children }: AppShellProps) {
 
   // Marketing / Landing page uses full-bleed layout with top navigation
   const isMarketing = pathname === "/";
+  const isAuth =
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register");
+
+  if (isAuth) {
+    return (
+      <div className="min-h-screen bg-slate-950 font-sans">
+        <main className="w-full">{children}</main>
+        <ToastNotification />
+      </div>
+    );
+  }
 
   if (isMarketing) {
     return (
