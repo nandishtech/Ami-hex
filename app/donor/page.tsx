@@ -27,6 +27,7 @@ import {
 import StatusBadge from "@/components/ui/StatusBadge";
 import AiDonationModal from "@/components/donor/AiDonationModal";
 import RescueNetworkMap from "@/components/maps/RescueNetworkMap";
+import StakeholderAccessGate from "@/components/auth/StakeholderAccessGate";
 import { MapMarker } from "@/lib/maps";
 
 export default function DonorDashboardPage() {
@@ -223,6 +224,12 @@ export default function DonorDashboardPage() {
 
   return (
     <div className="w-full max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Stakeholder Access Gate Banner */}
+      <StakeholderAccessGate
+        requiredRole="DONOR"
+        platformName="Food Donor Section (GreenFork Commercial Hub)"
+      />
+
       {/* 1. Hero Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-resq-navy-dark via-resq-navy to-[#133355] text-white p-6 sm:p-8 shadow-xl border border-white/10">
         <div className="absolute right-0 top-0 w-96 h-full bg-gradient-to-l from-resq-blue/15 to-transparent pointer-events-none" />

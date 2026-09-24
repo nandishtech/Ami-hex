@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import RescueNetworkMap from "@/components/maps/RescueNetworkMap";
+import StakeholderAccessGate from "@/components/auth/StakeholderAccessGate";
 import { MapMarker } from "@/lib/maps";
 
 export default function RecipientDashboardPage() {
@@ -120,6 +121,12 @@ export default function RecipientDashboardPage() {
 
   return (
     <div className="w-full max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Stakeholder Access Gate Banner */}
+      <StakeholderAccessGate
+        requiredRole="RECIPIENT"
+        platformName="Recipient Shelter & NGO Platform (Hope Community Shelter)"
+      />
+
       {/* 1. Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-resq-border">
         <div>

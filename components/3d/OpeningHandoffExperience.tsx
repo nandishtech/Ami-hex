@@ -343,27 +343,34 @@ export default function OpeningHandoffExperience({ onComplete }: OpeningExperien
 
         {/* Interactive Buttons appearing in Ready phase */}
         <div className="flex flex-wrap items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <Link
-            href="/donor"
+          <a
+            href="#gateway"
             className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-resq-blue text-white font-bold text-sm shadow-glow hover:bg-resq-blue-hover active:scale-95 transition-all"
           >
-            Start a Rescue
+            <Sparkles className="w-4 h-4 text-resq-gold" />
+            Register / Sign In Gateway
             <ArrowRight className="w-4 h-4" />
+          </a>
+
+          <Link
+            href="/donor"
+            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur border border-white/20 transition-all"
+          >
+            Donor Section
           </Link>
 
           <Link
-            href="/matching"
-            className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur border border-white/20 transition-all"
+            href="/driver"
+            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 font-semibold text-sm backdrop-blur border border-emerald-500/30 transition-all"
           >
-            <Sparkles className="w-4 h-4 text-resq-gold" />
-            AI Matcher
+            Delivery Platform
           </Link>
 
           <Link
             href="/demo"
-            className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-resq-green to-resq-green-bright text-white font-bold text-sm shadow-glow-green hover:opacity-95 active:scale-95 transition-all"
+            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur border border-white/20 transition-all"
           >
-            <Play className="w-4 h-4 fill-current" />
+            <Play className="w-4 h-4 fill-current text-resq-green" />
             Interactive Demo
           </Link>
         </div>

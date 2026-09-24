@@ -25,6 +25,7 @@ import PickupVerificationModal from "@/components/rescue/PickupVerificationModal
 import DeliveryHandoffModal from "@/components/rescue/DeliveryHandoffModal";
 import DigitalReceiptModal from "@/components/rescue/DigitalReceiptModal";
 import RescueNetworkMap from "@/components/maps/RescueNetworkMap";
+import StakeholderAccessGate from "@/components/auth/StakeholderAccessGate";
 import { MapMarker } from "@/lib/maps";
 
 export default function DriverDashboardPage() {
@@ -86,6 +87,12 @@ export default function DriverDashboardPage() {
 
   return (
     <div className="w-full max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Stakeholder Access Gate Banner */}
+      <StakeholderAccessGate
+        requiredRole="DRIVER"
+        platformName="Delivery Driver Platform (Zero-Emission EV Rescue Fleet)"
+      />
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-resq-border">
         <div>

@@ -22,6 +22,7 @@ import {
 import OpeningHandoffExperience from "@/components/3d/OpeningHandoffExperience";
 import Hero3DNetwork from "@/components/3d/Hero3DNetwork";
 import RescueNetworkMap from "@/components/maps/RescueNetworkMap";
+import AuthPortal from "@/components/auth/AuthPortal";
 
 export default function HomePage() {
   const [showIntro, setShowIntro] = useState(true);
@@ -57,20 +58,29 @@ export default function HomePage() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Link
-                  href="/donor?action=create"
+                <a
+                  href="#gateway"
                   className="px-6 py-3.5 rounded-xl bg-resq-blue hover:bg-resq-blue-hover text-white font-bold text-sm shadow-glow transition-all flex items-center gap-2"
                 >
-                  Start a Rescue
+                  <Sparkles className="w-4 h-4 text-resq-gold" />
+                  Stakeholder Registration & Login Gateway
                   <ArrowRight className="w-4 h-4" />
+                </a>
+
+                <Link
+                  href="/donor"
+                  className="px-5 py-3.5 rounded-xl bg-resq-navy hover:bg-resq-navy-dark text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
+                >
+                  <Utensils className="w-4 h-4 text-resq-blue-light" />
+                  Donor Section
                 </Link>
 
                 <Link
-                  href="/auth"
-                  className="px-5 py-3.5 rounded-xl bg-resq-navy hover:bg-resq-navy-dark text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
+                  href="/driver"
+                  className="px-5 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
                 >
-                  <Sparkles className="w-4 h-4 text-resq-gold" />
-                  Sign In / Register
+                  <Truck className="w-4 h-4 text-emerald-200" />
+                  Delivery Platform
                 </Link>
 
                 <Link
@@ -122,6 +132,11 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* 2.5 STAKEHOLDER REGISTRATION & FAST LOGIN GATEWAY */}
+      <section id="gateway" className="relative py-12 lg:py-16 bg-[#071626] border-y border-slate-800">
+        <AuthPortal />
       </section>
 
       {/* 3. HOW RESQFOOD WORKS (The 5-Step Operational Pipeline) */}

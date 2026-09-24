@@ -232,6 +232,15 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* Quick Register / Login Gate Button */}
+            <Link
+              href="/auth"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-resq-blue text-white text-xs font-bold shadow-sm hover:bg-resq-blue-hover transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-resq-gold" />
+              <span>Register / Sign In</span>
+            </Link>
+
             {/* Role Switcher Pill */}
             <div className="relative">
               <button

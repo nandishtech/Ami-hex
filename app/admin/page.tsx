@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import RescueNetworkMap from "@/components/maps/RescueNetworkMap";
 import StatusBadge from "@/components/ui/StatusBadge";
+import StakeholderAccessGate from "@/components/auth/StakeholderAccessGate";
 import { MapMarker } from "@/lib/maps";
 
 export default function AdminCommandCenterPage() {
@@ -219,6 +220,12 @@ export default function AdminCommandCenterPage() {
 
   return (
     <div className="w-full max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Stakeholder Access Gate Banner */}
+      <StakeholderAccessGate
+        requiredRole="ADMIN"
+        platformName="City Admin Command Center (Bengaluru Metropolitan Ops)"
+      />
+
       {/* 1. City Command Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-resq-border">
         <div>
