@@ -1,0 +1,289 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  phone        String?
+  passwordHash String
+  role         String        // DONOR, RECIPIENT, DRIVER, ADMIN
+  avatar       String?
+  status       String        @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  donorProfile     DonorProfile?
+  recipientProfile RecipientProfile?
+  driverProfile    DriverProfile?
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+}
+
+model Organization {
+  id                 String             @id @default(uuid())
+  name               String
+  type               String             // RESTAURANT, HOTEL, GROCERY, CATERER, CAFETERIA, EVENT, NGO, SHELTER, FOOD_BANK, COMMUNITY_KITCHEN, CORPORATE, GOVERNMENT
+  logo               String?
+  description        String?
+  verificationStatus String             @default("VERIFIED") // PENDING, VERIFIED, REJECTED
+  phone              String?
+  email              String?
+  address            String
+  latitude           Float
+  longitude          Float
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @default(now()) @updatedAt
+
+  branches           Branch[]
+  donorProfiles      DonorProfile[]
+  recipientProfiles  RecipientProfile[]
+  donations          Donation[]
+  insights           AIInsight[]
+}
+
+model Branch {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  address        String
+  latitude       Float
+  longitude      Float
+  operatingHours String?      // e.g. "08:00 - 22:00"
+  capacity       Float        @default(100) // in kg
+  status         String       @default("ACTIVE") // ACTIVE, INACTIVE
+  createdAt      DateTime     @default(now())
+}
+
+model DonorProfile {
+  id                    String       @id @default(uuid())
+  userId                String       @unique
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId        String?
+  organization          Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  foodCategories        String       // JSON array or comma separated: ["Prepared Meals", "Bakery", "Produce"]
+  defaultPickupLocation String?
+  verificationStatus    String       @default("VERIFIED")
+}
+
+model RecipientProfile {
+  id                 String       @id @default(uuid())
+  userId             String       @unique
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId     String?
+  organization       Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  capacity           Float        @default(200) // in kg
+  currentNeeds       String       // e.g. JSON: [{"category":"Prepared Meals","neededKg":40,"receivedKg":12}]
+  foodPreferences    String       // JSON: ["Prepared Meals", "Dairy", "Vegetarian"]
+  operatingHours     String?      // e.g. "09:00 - 21:00"
+  availabilityStatus String       @default("OPEN") // OPEN, FULL, CLOSED
+}
+
+model DriverProfile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicleType        String   @default("CAR") // CAR, VAN, BIKE, EV_CAR, CARGO_BIKE
+  vehicleCapacity    Float    @default(80) // in kg
+  availability       String   @default("AVAILABLE") // AVAILABLE, BUSY, OFFLINE
+  currentLatitude    Float
+  currentLongitude   Float
+  serviceRadius      Float    @default(15) // in km
+  verificationStatus String   @default("VERIFIED")
+  lastLocationUpdate DateTime @default(now())
+}
+
+model Donation {
+  id               String      @id @default(uuid())
+  donorId          String
+  organizationId   String?
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  foodName         String
+  category         String      // Prepared Meals, Bakery, Produce, Dairy, Packaged, Canned
+  quantity         Float
+  unit             String      @default("KG") // KG, TRAYS, BOXES, PORTIONS
+  estimatedMeals   Int
+  preparedAt       DateTime    @default(now())
+  availableUntil   DateTime
+  storageCondition String      // ROOM_TEMP, REFRIGERATED, FROZEN, HOT_HELD
+  pickupAddress    String
+  latitude         Float
+  longitude        Float
+  imageUrl         String?
+  notes            String?
+  status           String      @default("POSTED") // DRAFT, POSTED, MATCHING, MATCHED, ASSIGNED, PICKUP_PENDING, PICKED_UP, IN_TRANSIT, DELIVERED, CANCELLED, EXPIRED
+  urgencyLevel     String      @default("MEDIUM") // LOW (>4h), MEDIUM (2-4h), HIGH (1-2h), CRITICAL (<1h)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  foodItems        FoodItem[]
+  matches          Match[]
+  rescues          Rescue[]
+}
+
+model FoodItem {
+  id               String   @id @default(uuid())
+  donationId       String
+  donation         Donation @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  name             String
+  category         String
+  quantity         Float
+  unit             String
+  storageCondition String
+  allergens        String?  // JSON array: ["Dairy", "Nuts", "Gluten"]
+  notes            String?
+}
+
+model Match {
+  id            String      @id @default(uuid())
+  donationId    String
+  donation      Donation    @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  recipientId   String
+  driverId      String?
+  score         Float       // Total score out of 100
+  distance      Float       // in km
+  estimatedTime Int         // in minutes
+  status        String      @default("PROPOSED") // PROPOSED, ACCEPTED, REJECTED, EXPIRED
+  createdAt     DateTime    @default(now())
+
+  matchScore    MatchScore?
+  rescues       Rescue[]
+}
+
+model MatchScore {
+  id                 String   @id @default(uuid())
+  matchId            String   @unique
+  match              Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  urgencyScore       Float    // Max 25
+  distanceScore      Float    // Max 25
+  capacityScore      Float    // Max 20
+  compatibilityScore Float    // Max 15
+  driverScore        Float    // Max 15
+  explanation        String   // Structured reasoning
+}
+
+model Rescue {
+  id                    String        @id @default(uuid())
+  donationId            String
+  donation              Donation      @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  matchId               String?
+  match                 Match?        @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  recipientId           String
+  driverId              String?
+  status                String        @default("MATCHED") // MATCHED, DRIVER_ACCEPTED, ARRIVED_PICKUP, PICKED_UP, IN_TRANSIT, ARRIVED_DESTINATION, DELIVERED, CANCELLED
+  rescueScore           Float         @default(90)
+  estimatedPickupTime   DateTime?
+  estimatedDeliveryTime DateTime?
+  actualPickupTime      DateTime?
+  actualDeliveryTime    DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  routes                Route[]
+  pickups               Pickup[]
+  deliveries            Delivery[]
+  impactRecords         ImpactRecord[]
+}
+
+model Route {
+  id                String   @id @default(uuid())
+  rescueId          String
+  rescue            Rescue   @relation(fields: [rescueId], references: [id], onDelete: Cascade)
+  startLatitude     Float
+  startLongitude    Float
+  endLatitude       Float
+  endLongitude      Float
+  distance          Float    // in km
+  estimatedDuration Int      // in minutes
+  trafficStatus     String   @default("NORMAL") // NORMAL, MODERATE, HEAVY
+  routeData         String?  // GeoJSON or encoded polyline coordinates
+}
+
+model Pickup {
+  id         String   @id @default(uuid())
+  rescueId   String
+  rescue     Rescue   @relation(fields: [rescueId], references: [id], onDelete: Cascade)
+  status     String   @default("CONFIRMED")
+  timestamp  DateTime @default(now())
+  latitude   Float
+  longitude  Float
+  qrCode     String
+  photoUrl   String?
+  notes      String?
+}
+
+model Delivery {
+  id                    String   @id @default(uuid())
+  rescueId              String
+  rescue                Rescue   @relation(fields: [rescueId], references: [id], onDelete: Cascade)
+  status                String   @default("CONFIRMED")
+  timestamp             DateTime @default(now())
+  latitude              Float
+  longitude             Float
+  qrCode                String
+  photoUrl              String?
+  recipientConfirmation String   // Recipient signature or verified officer name
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // RESCUE, CRITICAL, SYSTEM, IMPACT, REMATCH
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ImpactRecord {
+  id                     String   @id @default(uuid())
+  rescueId               String
+  rescue                 Rescue   @relation(fields: [rescueId], references: [id], onDelete: Cascade)
+  foodWeight             Float    // in kg
+  estimatedMeals         Int
+  estimatedCo2e          Float    // in kg CO2e
+  organizationsSupported Int      @default(1)
+  waterSavedLitres       Float    @default(0)
+  methodologyVersion     String   @default("EPA_WARM_v15_FOOD_RESCUE")
+  createdAt              DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   // DONATION_CREATED, MATCH_CALCULATED, DRIVER_ACCEPTED, PICKUP_VERIFIED, DELIVERY_VERIFIED, REMATCH_TRIGGERED, etc.
+  entityType String   // Donation, Match, Rescue, Organization, Driver
+  entityId   String
+  metadata   String?  // JSON string
+  timestamp  DateTime @default(now())
+}
+
+model City {
+  id        String   @id @default(uuid())
+  name      String
+  country   String   @default("India")
+  latitude  Float
+  longitude Float
+  status    String   @default("ACTIVE") // ACTIVE, EXPANDING, PLANNED
+}
+
+model AIInsight {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type           String       // SURPLUS_FORECAST, ROUTE_OPTIMIZATION, DEMAND_SPIKE, SPOILAGE_ALERT
+  title          String
+  description    String
+  confidence     Float        @default(0.92)
+  metadata       String?      // JSON
+  createdAt      DateTime     @default(now())
+}
