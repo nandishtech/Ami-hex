@@ -56,7 +56,7 @@ export default function HomePage() {
               </p>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link
                   href="/donor?action=create"
                   className="px-6 py-3.5 rounded-xl bg-resq-blue hover:bg-resq-blue-hover text-white font-bold text-sm shadow-glow transition-all flex items-center gap-2"
@@ -66,8 +66,16 @@ export default function HomePage() {
                 </Link>
 
                 <Link
+                  href="/auth"
+                  className="px-5 py-3.5 rounded-xl bg-resq-navy hover:bg-resq-navy-dark text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-resq-gold" />
+                  Sign In / Register
+                </Link>
+
+                <Link
                   href="/demo"
-                  className="px-6 py-3.5 rounded-xl bg-white border border-resq-border text-resq-navy hover:bg-slate-50 font-bold text-sm shadow-sm transition-all flex items-center gap-2"
+                  className="px-5 py-3.5 rounded-xl bg-white border border-resq-border text-resq-navy hover:bg-slate-50 font-bold text-sm shadow-sm transition-all flex items-center gap-2"
                 >
                   <Play className="w-4 h-4 text-resq-green fill-current" />
                   Interactive Demo
@@ -209,12 +217,20 @@ export default function HomePage() {
                   Restaurants, banquets, and supermarkets create donations in seconds with AI natural language and track live driver arrival.
                 </p>
               </div>
-              <Link
-                href="/donor"
-                className="mt-6 text-xs font-bold text-resq-blue flex items-center gap-1 hover:underline"
-              >
-                Open Donor Portal →
-              </Link>
+              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                <Link
+                  href="/auth?mode=register&role=donor"
+                  className="text-resq-blue hover:underline"
+                >
+                  Register as Donor →
+                </Link>
+                <Link
+                  href="/auth?mode=login&role=donor"
+                  className="text-slate-500 hover:text-resq-navy"
+                >
+                  Sign In
+                </Link>
+              </div>
             </div>
 
             {/* Recipient */}
@@ -228,12 +244,20 @@ export default function HomePage() {
                   Interactive capacity slider dynamically attracts compatible donations while current-needs gaps prioritize specific items.
                 </p>
               </div>
-              <Link
-                href="/recipient"
-                className="mt-6 text-xs font-bold text-resq-green flex items-center gap-1 hover:underline"
-              >
-                Open Shelter Portal →
-              </Link>
+              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                <Link
+                  href="/auth?mode=register&role=recipient"
+                  className="text-resq-green hover:underline"
+                >
+                  Register Shelter →
+                </Link>
+                <Link
+                  href="/auth?mode=login&role=recipient"
+                  className="text-slate-500 hover:text-resq-navy"
+                >
+                  Sign In
+                </Link>
+              </div>
             </div>
 
             {/* Driver */}
@@ -247,12 +271,20 @@ export default function HomePage() {
                   Mobile-first navigation, 1-tap swipe to accept, QR pickup scans, and handoff verification with large touch targets.
                 </p>
               </div>
-              <Link
-                href="/driver"
-                className="mt-6 text-xs font-bold text-indigo-600 flex items-center gap-1 hover:underline"
-              >
-                Open Driver App →
-              </Link>
+              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                <Link
+                  href="/auth?mode=register&role=driver"
+                  className="text-indigo-600 hover:underline"
+                >
+                  Register as Driver →
+                </Link>
+                <Link
+                  href="/auth?mode=login&role=driver"
+                  className="text-slate-500 hover:text-resq-navy"
+                >
+                  Sign In
+                </Link>
+              </div>
             </div>
 
             {/* Admin */}
@@ -266,12 +298,20 @@ export default function HomePage() {
                   Municipal authorities monitor real-time surplus vs demand zones, critical rescue queues, and audit logs.
                 </p>
               </div>
-              <Link
-                href="/admin"
-                className="mt-6 text-xs font-bold text-resq-navy flex items-center gap-1 hover:underline"
-              >
-                City Command Ops →
-              </Link>
+              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                <Link
+                  href="/auth?mode=register&role=admin"
+                  className="text-resq-navy hover:underline"
+                >
+                  Register Command →
+                </Link>
+                <Link
+                  href="/auth?mode=login&role=admin"
+                  className="text-slate-500 hover:text-resq-navy"
+                >
+                  Sign In
+                </Link>
+              </div>
             </div>
           </div>
         </div>

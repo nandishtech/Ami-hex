@@ -43,6 +43,16 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
 
   useEffect(() => {
     setSession(getActiveSession());
+
+    const handleAuthChange = (e: any) => {
+      if (e.detail) setSession(e.detail);
+      else setSession(DEMO_USERS.DONOR);
+    };
+
+    window.addEventListener("resqfood-auth-change", handleAuthChange);
+    return () => {
+      window.removeEventListener("resqfood-auth-change", handleAuthChange);
+    };
   }, [pathname]);
 
   const navSections = [
@@ -239,6 +249,25 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
                   {session.role === r && <ShieldCheck className="w-3.5 h-3.5 text-resq-blue" />}
                 </button>
               ))}
+
+              <div className="pt-1.5 mt-1.5 border-t border-slate-100 space-y-1">
+                <Link
+                  href="/auth?mode=register"
+                  onClick={() => setShowRoleDropdown(false)}
+                  className="w-full text-left px-2.5 py-1.5 rounded-lg font-bold text-resq-blue hover:bg-blue-50 flex items-center justify-between transition-colors block text-[11px]"
+                >
+                  <span>+ Register New Profile</span>
+                  <span>→</span>
+                </Link>
+                <Link
+                  href="/auth?mode=login"
+                  onClick={() => setShowRoleDropdown(false)}
+                  className="w-full text-left px-2.5 py-1.5 rounded-lg font-bold text-slate-600 hover:bg-slate-100 flex items-center justify-between transition-colors block text-[11px]"
+                >
+                  <span>Sign In / Quick Login</span>
+                  <span>→</span>
+                </Link>
+              </div>
             </div>
           )}
         </div>

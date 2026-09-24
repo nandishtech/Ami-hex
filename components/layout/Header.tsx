@@ -28,6 +28,16 @@ export default function Header({ sidebarCollapsed = false }: HeaderProps) {
 
   useEffect(() => {
     setSession(getActiveSession());
+
+    const handleAuthChange = (e: any) => {
+      if (e.detail) setSession(e.detail);
+      else setSession(DEMO_USERS.DONOR);
+    };
+
+    window.addEventListener("resqfood-auth-change", handleAuthChange);
+    return () => {
+      window.removeEventListener("resqfood-auth-change", handleAuthChange);
+    };
   }, [pathname]);
 
   // Derive dynamic breadcrumbs & titles
@@ -178,6 +188,29 @@ export default function Header({ sidebarCollapsed = false }: HeaderProps) {
               {unreadCount}
             </span>
           )}
+        </Link>
+
+        {/* User Account / Auth Portal Button */}
+        <Link
+          href="/auth"
+          className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-2xl border border-resq-border bg-slate-50 hover:bg-white hover:border-slate-300 transition-all text-left group"
+          title="Switch Profile / Sign In"
+        >
+          <div className="w-7 h-7 rounded-xl overflow-hidden bg-slate-200 shrink-0">
+            <img
+              src={session.avatar || "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=100"}
+              alt={session.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="hidden md:flex flex-col">
+            <span className="text-[11px] font-bold text-resq-navy leading-none">
+              {session.name.split(" ")[0]}
+            </span>
+            <span className="text-[9px] font-black text-resq-blue mt-0.5 leading-none">
+              {session.role}
+            </span>
+          </div>
         </Link>
       </div>
     </header>
