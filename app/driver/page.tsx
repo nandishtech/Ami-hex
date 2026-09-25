@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Truck,
   MapPin,
@@ -19,6 +20,7 @@ import {
   Zap,
   Check,
   RotateCcw,
+  Coins,
 } from "lucide-react";
 import SwipeAcceptCard from "@/components/driver/SwipeAcceptCard";
 import PickupVerificationModal from "@/components/rescue/PickupVerificationModal";
@@ -26,13 +28,23 @@ import DeliveryHandoffModal from "@/components/rescue/DeliveryHandoffModal";
 import DigitalReceiptModal from "@/components/rescue/DigitalReceiptModal";
 import RescueNetworkMap from "@/components/maps/RescueNetworkMap";
 import StakeholderAccessGate from "@/components/auth/StakeholderAccessGate";
+import LeaderboardAndTokenHub from "@/components/leaderboard/LeaderboardAndTokenHub";
 import { MapMarker } from "@/lib/maps";
 
-export default function DriverDashboardPage() {
+function DriverDashboardContent() {
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<"DISPATCH" | "LEADERBOARD">("DISPATCH");
   const [isPickupModalOpen, setIsPickupModalOpen] = useState(false);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [showCelebrationRipple, setShowCelebrationRipple] = useState(false);
+
+  useEffect(() => {
+    const tab = searchParams?.get("tab")?.toUpperCase();
+    if (tab === "LEADERBOARD" || tab === "DISPATCH") {
+      setActiveTab(tab as any);
+    }
+  }, [searchParams]);
 
   // Driver Telemetry
   const driverStats = {
@@ -121,8 +133,39 @@ export default function DriverDashboardPage() {
         </div>
       </div>
 
-      {/* Main Grid: Mobile Simulator on Left (5 Cols) + Fleet Logistics on Right (7 Cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* View Switcher: Dispatch Radar vs Leaderboard */}
+      <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl w-fit">
+        <button
+          onClick={() => setActiveTab("DISPATCH")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "DISPATCH"
+              ? "bg-white text-resq-navy shadow-sm"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          Live Dispatch Radar & Navigation
+        </button>
+        <button
+          onClick={() => setActiveTab("LEADERBOARD")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            activeTab === "LEADERBOARD"
+              ? "bg-amber-500 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <Coins className="w-3.5 h-3.5" />
+          <span>Courier Leaderboard & Meal Vouchers</span>
+        </button>
+      </div>
+
+      {activeTab === "LEADERBOARD" ? (
+        <div className="space-y-4">
+          <LeaderboardAndTokenHub currentRole="DRIVER" />
+        </div>
+      ) : (
+        <>
+          {/* Main Grid: Mobile Simulator on Left (5 Cols) + Fleet Logistics on Right (7 Cols) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left: Mobile-First Driver Terminal Interface */}
         <div className="lg:col-span-5 flex flex-col items-center">
           <div className="w-full max-w-md bg-slate-900 p-3 rounded-[40px] shadow-2xl border-4 border-slate-800 relative">
@@ -290,7 +333,7 @@ export default function DriverDashboardPage() {
                 <div>
                   <h4 className="font-bold text-resq-navy">Dual QR Custody Handoff</h4>
                   <p className="text-slate-500 text-[11px] mt-0.5">
-                    Scan donor QR at pickup. Show recipient security PIN (8291) at dropoff to release smart contract escrow.
+                    Scan donor QR at pickup. Enter recipient handshake PIN (8492) at dropoff to release smart contract escrow.
                   </p>
                 </div>
               </div>
@@ -298,6 +341,8 @@ export default function DriverDashboardPage() {
           </div>
         </div>
       </div>
+      </>
+      )}
 
       {/* Verification Modals */}
       <PickupVerificationModal
@@ -334,5 +379,13 @@ export default function DriverDashboardPage() {
         }}
       />
     </div>
+  );
+}
+
+export default function DriverDashboardPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-400">Loading driver radar...</div>}>
+      <DriverDashboardContent />
+    </Suspense>
   );
 }

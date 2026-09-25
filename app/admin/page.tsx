@@ -32,6 +32,7 @@ export default function AdminCommandCenterPage() {
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "CRITICAL" | "DRIVERS" | "AUDIT">("CRITICAL");
   const [searchTerm, setSearchTerm] = useState("");
   const [overrideModalRescue, setOverrideModalRescue] = useState<any | null>(null);
+  const [overrideDispatched, setOverrideDispatched] = useState(false);
 
   const cityKpis = {
     activeRescues: 8,
@@ -576,23 +577,37 @@ export default function AdminCommandCenterPage() {
                   Manual override will directly re-route nearest EV Driver Farooq Ahmed and notify Ananda Kitchen intake staff via push notifications.
                 </p>
               </div>
+
+              {overrideDispatched && (
+                <div className="p-3 bg-emerald-50 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>✓ Priority Override Dispatched! Driver Farooq Ahmed assigned to rescue {overrideModalRescue.id}.</span>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
               <button
-                onClick={() => setOverrideModalRescue(null)}
+                onClick={() => {
+                  setOverrideDispatched(false);
+                  setOverrideModalRescue(null);
+                }}
                 className="px-4 py-2 rounded-xl border border-resq-border text-xs font-bold text-slate-600 hover:bg-slate-50"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
-                  alert(`Override dispatched! Driver Farooq Ahmed assigned to rescue ${overrideModalRescue.id}.`);
-                  setOverrideModalRescue(null);
+                  setOverrideDispatched(true);
+                  setTimeout(() => {
+                    setOverrideDispatched(false);
+                    setOverrideModalRescue(null);
+                  }, 1200);
                 }}
-                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black shadow-glow"
+                disabled={overrideDispatched}
+                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-black shadow-glow"
               >
-                Confirm Priority Override
+                {overrideDispatched ? "Dispatching..." : "Confirm Priority Override"}
               </button>
             </div>
           </div>

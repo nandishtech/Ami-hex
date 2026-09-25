@@ -27,6 +27,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
+  Award,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { DEMO_USERS, getActiveSession, switchDemoRole } from "@/lib/auth";
 import { UserRole, UserSession } from "@/lib/types";
@@ -38,15 +41,44 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed = false, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const [session, setSession] = useState<UserSession>(DEMO_USERS.DONOR);
+  const [session, setSession] = useState<UserSession | null>(null);
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+
+  const toggleAudio = () => {
+    const nextState = !audioEnabled;
+    setAudioEnabled(nextState);
+    if (nextState && typeof window !== "undefined") {
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContext) {
+          const ctx = new AudioContext();
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc1.type = "sine";
+          osc1.frequency.setValueAtTime(880, ctx.currentTime);
+          osc2.type = "triangle";
+          osc2.frequency.setValueAtTime(1320, ctx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+          osc1.start(ctx.currentTime);
+          osc1.stop(ctx.currentTime + 0.15);
+          osc2.start(ctx.currentTime + 0.08);
+          osc2.stop(ctx.currentTime + 0.3);
+        }
+      } catch (e) {}
+    }
+  };
 
   useEffect(() => {
     setSession(getActiveSession());
 
     const handleAuthChange = (e: any) => {
-      if (e.detail) setSession(e.detail);
-      else setSession(DEMO_USERS.DONOR);
+      setSession(e.detail || null);
     };
 
     window.addEventListener("resqfood-auth-change", handleAuthChange);
@@ -55,53 +87,143 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
     };
   }, [pathname]);
 
-  const navSections = [
-    {
-      title: "OVERVIEW",
-      items: [
-        { label: "Dashboard", href: `/${session.role.toLowerCase()}`, icon: LayoutDashboard },
-      ],
-    },
-    {
-      title: "OPERATIONS",
-      items: [
-        { label: "Donations", href: "/donor", icon: Utensils },
-        { label: "Active Rescues", href: "/rescues", icon: Truck },
-        { label: "Rescue History", href: "/rescues?status=DELIVERED", icon: History },
-      ],
-    },
-    {
-      title: "INTELLIGENCE",
-      items: [
-        { label: "AI Matcher", href: "/matching", icon: Sparkles },
-        { label: "AI Assistant", href: "/donor?action=create", icon: Bot },
-        { label: "Analytics", href: "/analytics", icon: BarChart3 },
-      ],
-    },
-    {
-      title: "NETWORK",
-      items: [
-        { label: "Recipients", href: "/recipient", icon: HeartHandshake },
-        { label: "Drivers", href: "/driver", icon: Navigation },
-        { label: "Live Network", href: "/network", icon: Globe },
-      ],
-    },
-    {
-      title: "IMPACT",
-      items: [
-        { label: "Impact", href: "/impact", icon: Leaf },
-        { label: "ESG Reports", href: "/impact#esg", icon: FileSpreadsheet },
-      ],
-    },
-    {
-      title: "ORGANIZATION",
-      items: [
-        { label: "Team", href: "/settings?tab=team", icon: Users },
-        { label: "Branches", href: "/settings?tab=branches", icon: GitBranch },
-        { label: "Integrations", href: "/settings?tab=integrations", icon: Puzzle },
-      ],
-    },
-  ];
+  // Determine active stakeholder role from current path or authenticated session
+  const effectiveRole: UserRole = pathname.startsWith("/recipient")
+    ? "RECIPIENT"
+    : pathname.startsWith("/driver")
+    ? "DRIVER"
+    : pathname.startsWith("/donor")
+    ? "DONOR"
+    : pathname.startsWith("/admin")
+    ? "ADMIN"
+    : session?.role || "DONOR";
+
+  // Dynamic role-specific navigation sections (display only needed sections)
+  const getNavSections = () => {
+    switch (effectiveRole) {
+      case "DONOR":
+        return [
+          {
+            title: "FOOD DONOR CONSOLE",
+            items: [
+              { label: "Donor Dashboard", href: "/donor", icon: LayoutDashboard },
+              { label: "Post Surplus Food", href: "/donor?action=create", icon: Utensils },
+              { label: "Active Rescues", href: "/rescues", icon: Truck },
+              { label: "Rescue History", href: "/rescues?status=DELIVERED", icon: History },
+            ],
+          },
+          {
+            title: "INTELLIGENCE",
+            items: [
+              { label: "AI Food Matcher", href: "/matching", icon: Sparkles },
+              { label: "Metropolitan Grid", href: "/network", icon: Globe },
+            ],
+          },
+          {
+            title: "IMPACT & PROFILE",
+            items: [
+              { label: "Tax Exemption & ESG", href: "/impact", icon: Leaf },
+              { label: "Restaurant Leaderboard & Tokens", href: "/donor?tab=LEADERBOARD", icon: Award },
+              { label: "Kitchen Settings", href: "/settings", icon: Settings },
+            ],
+          },
+        ];
+
+      case "DRIVER":
+        return [
+          {
+            title: "DRIVER TERMINAL",
+            items: [
+              { label: "Driver Operations Hub", href: "/driver", icon: Navigation },
+              { label: "Active Pickups & Radar", href: "/driver", icon: Truck },
+              { label: "Delivered Receipts", href: "/rescues?status=DELIVERED", icon: History },
+            ],
+          },
+          {
+            title: "NETWORK RADAR",
+            items: [
+              { label: "Live City Radar", href: "/network", icon: Globe },
+              { label: "Transit Cold-Chain", href: "/driver", icon: Sparkles },
+            ],
+          },
+          {
+            title: "IMPACT & REWARDS",
+            items: [
+              { label: "EV Carbon Saved", href: "/impact", icon: Leaf },
+              { label: "Rescue Leaderboard & Tokens", href: "/driver?tab=LEADERBOARD", icon: Award },
+            ],
+          },
+        ];
+
+      case "RECIPIENT":
+        return [
+          {
+            title: "SHELTER INTAKE",
+            items: [
+              { label: "Shelter Intake Portal", href: "/recipient", icon: LayoutDashboard },
+              { label: "Incoming Rescues", href: "/recipient", icon: Truck },
+              { label: "Intake Storage & Needs", href: "/recipient", icon: HeartHandshake },
+            ],
+          },
+          {
+            title: "NETWORK & INTEL",
+            items: [
+              { label: "City Rescue Grid", href: "/network", icon: Globe },
+              { label: "Matched Donors", href: "/matching", icon: Sparkles },
+              { label: "Community Leaderboard", href: "/recipient?tab=LEADERBOARD", icon: Award },
+            ],
+          },
+          {
+            title: "RELIEF IMPACT",
+            items: [
+              { label: "Meals Distributed", href: "/impact", icon: Leaf },
+              { label: "Shelter Profile", href: "/settings", icon: Settings },
+            ],
+          },
+        ];
+
+      case "ADMIN":
+        return [
+          {
+            title: "CITY COMMAND",
+            items: [
+              { label: "City Operations Center", href: "/admin", icon: LayoutDashboard },
+              { label: "Metropolitan Rescue Grid", href: "/network", icon: Globe },
+              { label: "Live Rescue Fleets", href: "/rescues", icon: Truck },
+              { label: "City Analytics", href: "/analytics", icon: BarChart3 },
+            ],
+          },
+          {
+            title: "GOVERNANCE & AUDIT",
+            items: [
+              { label: "SLA Compliance Audit", href: "/admin", icon: ShieldCheck },
+              { label: "Regional ESG Reports", href: "/impact", icon: Leaf },
+              { label: "System Settings", href: "/settings", icon: Settings },
+            ],
+          },
+        ];
+
+      default:
+        return [
+          {
+            title: "OVERVIEW",
+            items: [
+              { label: "Dashboard", href: session?.role ? `/${session.role.toLowerCase()}` : "/donor", icon: LayoutDashboard },
+              { label: "Active Rescues", href: "/rescues", icon: Truck },
+            ],
+          },
+          {
+            title: "NETWORK",
+            items: [
+              { label: "Live Network", href: "/network", icon: Globe },
+              { label: "Impact", href: "/impact", icon: Leaf },
+            ],
+          },
+        ];
+    }
+  };
+
+  const navSections = getNavSections();
 
   const handleRoleChange = (role: UserRole) => {
     const newSession = switchDemoRole(role);
@@ -118,25 +240,12 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
       {/* Top Header & Brand */}
       <div>
         <div className="h-[72px] px-5 flex items-center justify-between border-b border-resq-border">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-resq-navy flex items-center justify-center text-white font-black tracking-wider shadow-sm group-hover:scale-105 transition-transform relative overflow-hidden shrink-0">
-              <span className="text-resq-green-bright text-lg">R</span>
-              <span className="text-white text-xs font-semibold">Q</span>
-              <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-resq-green-bright animate-ping opacity-75" />
-            </div>
-            {!collapsed && (
-              <div className="flex flex-col">
-                <span className="text-base font-black tracking-tight text-resq-navy flex items-center gap-1.5 leading-tight">
-                  RESQFOOD
-                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-resq-blue-light text-resq-blue">
-                    SaaS
-                  </span>
-                </span>
-                <span className="text-[10px] text-resq-secondary font-medium truncate">
-                  Rescue Food. Route Hope.
-                </span>
-              </div>
-            )}
+          <Link href="/" className="flex items-center gap-2.5 group py-1">
+            <img
+              src="/logo.png"
+              alt="HopePlate"
+              className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
+            />
           </Link>
 
           {onToggleCollapse && (
@@ -160,7 +269,8 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
                 </span>
               )}
               {sec.items.map((item) => {
-                const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href) && item.href !== `/${session.role.toLowerCase()}`);
+                const rolePrefix = session?.role ? `/${session.role.toLowerCase()}` : "";
+                const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href) && item.href !== rolePrefix);
                 const Icon = item.icon;
 
                 return (
@@ -184,92 +294,35 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
         </div>
       </div>
 
-      {/* Bottom Profile & System Links */}
-      <div className="p-3 border-t border-resq-border bg-slate-50/60 space-y-2">
-        {/* System Links */}
-        <div className="flex items-center justify-around px-2 py-1 text-slate-400">
-          <Link href="/notifications" className="hover:text-resq-navy p-1" title="Notifications">
-            <Bell className="w-4 h-4" />
-          </Link>
-          <Link href="/settings" className="hover:text-resq-navy p-1" title="Settings">
+      {/* Bottom Profile & System Links - Only Settings, Audio, and Help */}
+      <div className="p-3 border-t border-resq-border bg-slate-50/80">
+        <div className="flex items-center justify-around px-2 py-1.5 text-slate-500">
+          <Link
+            href="/settings"
+            className="hover:text-amber-600 p-2 rounded-xl hover:bg-white transition-colors"
+            title="System & Tenant Settings"
+          >
             <Settings className="w-4 h-4" />
           </Link>
-          <Link href="/developers" className="hover:text-resq-navy p-1" title="Help & API Documentation">
+          <button
+            type="button"
+            onClick={toggleAudio}
+            className={`p-2 rounded-xl transition-all ${
+              audioEnabled
+                ? "text-amber-600 hover:bg-amber-50"
+                : "text-slate-400 hover:text-slate-600 hover:bg-slate-200"
+            }`}
+            title={audioEnabled ? "Operational Audio: Enabled (Click to Mute)" : "Operational Audio: Muted (Click to Enable)"}
+          >
+            {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+          <Link
+            href="/developers"
+            className="hover:text-amber-600 p-2 rounded-xl hover:bg-white transition-colors"
+            title="Help, Safety & API Guidelines"
+          >
             <HelpCircle className="w-4 h-4" />
           </Link>
-        </div>
-
-        {/* User Persona & Organization Card */}
-        <div className="relative">
-          <button
-            onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-            className="w-full flex items-center justify-between p-2 rounded-xl border border-resq-border bg-white hover:border-slate-300 transition-colors text-left"
-          >
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-200 shrink-0">
-                <img
-                  src={session.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100"}
-                  alt={session.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              {!collapsed && (
-                <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-bold text-resq-navy truncate">
-                    {session.name}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-resq-green font-bold">
-                      VERIFIED {session.role}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-            {!collapsed && <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
-          </button>
-
-          {/* Quick Role Switcher Dropdown */}
-          {showRoleDropdown && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 rounded-2xl bg-white shadow-floating border border-resq-border p-2 z-50 animate-in fade-in slide-in-from-bottom-2 text-xs">
-              <span className="px-2.5 py-1 text-[10px] font-bold uppercase text-slate-400 block border-b border-resq-border mb-1">
-                Switch Operational Persona
-              </span>
-              {(["DONOR", "RECIPIENT", "DRIVER", "ADMIN"] as UserRole[]).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => handleRoleChange(r)}
-                  className={`w-full text-left px-2.5 py-2 rounded-lg font-semibold flex items-center justify-between transition-colors ${
-                    session.role === r
-                      ? "bg-resq-blue-light text-resq-blue"
-                      : "hover:bg-slate-50 text-slate-700"
-                  }`}
-                >
-                  <span>{r}</span>
-                  {session.role === r && <ShieldCheck className="w-3.5 h-3.5 text-resq-blue" />}
-                </button>
-              ))}
-
-              <div className="pt-1.5 mt-1.5 border-t border-slate-100 space-y-1">
-                <Link
-                  href="/auth?mode=register"
-                  onClick={() => setShowRoleDropdown(false)}
-                  className="w-full text-left px-2.5 py-1.5 rounded-lg font-bold text-resq-blue hover:bg-blue-50 flex items-center justify-between transition-colors block text-[11px]"
-                >
-                  <span>+ Register New Profile</span>
-                  <span>→</span>
-                </Link>
-                <Link
-                  href="/auth?mode=login"
-                  onClick={() => setShowRoleDropdown(false)}
-                  className="w-full text-left px-2.5 py-1.5 rounded-lg font-bold text-slate-600 hover:bg-slate-100 flex items-center justify-between transition-colors block text-[11px]"
-                >
-                  <span>Sign In / Quick Login</span>
-                  <span>→</span>
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </aside>

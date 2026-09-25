@@ -7,13 +7,30 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, password, role } = body;
 
-    // Check if matching a demo user
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const cleanPassword = (password || "").trim();
+
+    // Permanent Admin Credentials: username 'admin', password 'admin123'
     let userSession = null;
+    if (
+      (cleanEmail === "admin" || cleanEmail === "admin@resqfood.org" || cleanEmail === "admin@hopeplate.org") &&
+      cleanPassword === "admin123"
+    ) {
+      userSession = {
+        id: "admin-master",
+        name: "Platform Administrator",
+        email: "admin@hopeplate.org",
+        role: "ADMIN" as UserRole,
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+        organizationName: "HopePlate Central Authority",
+      };
+    }
+
     const allDemoUsers = Object.values(DEMO_USERS);
 
-    if (email) {
+    if (!userSession && email) {
       userSession = allDemoUsers.find(
-        (u) => u.email.toLowerCase() === email.toLowerCase()
+        (u) => u.email.toLowerCase() === cleanEmail
       );
     }
 

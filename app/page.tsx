@@ -53,43 +53,26 @@ export default function HomePage() {
               </h2>
 
               <p className="text-base sm:text-lg text-resq-secondary leading-relaxed max-w-xl">
-                RESQFOOD connects restaurants, banquets, and supermarkets with verified shelters and volunteer EV drivers in minutes—eliminating food waste through explainable AI matching and verified handoffs.
+                HOPEPLATE connects restaurants, banquets, and supermarkets with verified shelters and volunteer EV drivers in minutes—eliminating food waste through explainable AI matching and verified handoffs.
               </p>
 
-              {/* Action Buttons */}
+              {/* Action Buttons: Focused on Registration & Login Gateway */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <a
                   href="#gateway"
-                  className="px-6 py-3.5 rounded-xl bg-resq-blue hover:bg-resq-blue-hover text-white font-bold text-sm shadow-glow transition-all flex items-center gap-2"
+                  className="px-7 py-4 rounded-xl bg-resq-blue hover:bg-resq-blue-hover text-white font-black text-sm shadow-glow transition-all flex items-center gap-2.5"
                 >
                   <Sparkles className="w-4 h-4 text-resq-gold" />
                   Stakeholder Registration & Login Gateway
                   <ArrowRight className="w-4 h-4" />
                 </a>
 
-                <Link
-                  href="/donor"
-                  className="px-5 py-3.5 rounded-xl bg-resq-navy hover:bg-resq-navy-dark text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
+                <a
+                  href="#login-section"
+                  className="px-6 py-4 rounded-xl bg-resq-navy hover:bg-resq-navy-dark text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
                 >
-                  <Utensils className="w-4 h-4 text-resq-blue-light" />
-                  Donor Section
-                </Link>
-
-                <Link
-                  href="/driver"
-                  className="px-5 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
-                >
-                  <Truck className="w-4 h-4 text-emerald-200" />
-                  Delivery Platform
-                </Link>
-
-                <Link
-                  href="/demo"
-                  className="px-5 py-3.5 rounded-xl bg-white border border-resq-border text-resq-navy hover:bg-slate-50 font-bold text-sm shadow-sm transition-all flex items-center gap-2"
-                >
-                  <Play className="w-4 h-4 text-resq-green fill-current" />
-                  Interactive Demo
-                </Link>
+                  Fast Profile Login
+                </a>
               </div>
 
               {/* KPI Badges */}
@@ -147,7 +130,7 @@ export default function HomePage() {
               Autonomous Logistics Pipeline
             </span>
             <h3 className="text-3xl font-black text-resq-navy mt-1">
-              How RESQFOOD Solves Operational Food Waste
+              How HOPEPLATE Solves Operational Food Waste
             </h3>
             <p className="text-sm text-resq-secondary mt-2">
               Every donation travels seamlessly from natural description to verified delivery without delays.
@@ -305,7 +288,7 @@ export default function HomePage() {
             {/* Admin */}
             <div className="bg-white p-6 rounded-3xl border border-resq-border shadow-sm flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-slate-100 text-resq-navy flex items-center justify-center mb-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <h4 className="text-base font-bold text-resq-navy">City Command Center</h4>
@@ -314,17 +297,14 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md font-mono text-[10px]">
+                  admin / admin123
+                </span>
                 <Link
-                  href="/auth?mode=register&role=admin"
-                  className="text-resq-navy hover:underline"
+                  href="/auth#login-section"
+                  className="text-amber-600 hover:underline"
                 >
-                  Register Command →
-                </Link>
-                <Link
-                  href="/auth?mode=login&role=admin"
-                  className="text-slate-500 hover:text-resq-navy"
-                >
-                  Sign In
+                  Admin Sign In →
                 </Link>
               </div>
             </div>
@@ -332,38 +312,38 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. INTERACTIVE DEMO CTA SECTION */}
-      <section className="py-20 bg-resq-navy text-white relative overflow-hidden">
+      {/* 5. STAKEHOLDER REGISTRATION & FAST ACCESS CTA */}
+      <section className="py-20 bg-[#071626] text-white relative overflow-hidden border-t border-slate-800">
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-resq-green-bright border border-white/20">
-            <Award className="w-4 h-4" />
-            Full End-to-End Walkthrough Ready
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 text-xs font-bold text-blue-300 border border-blue-500/40">
+            <Sparkles className="w-4 h-4 text-resq-gold" />
+            Join the Food Rescue Ecosystem
           </div>
 
           <h3 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-            Experience the Complete Connected Rescue
+            Ready to Connect Surplus with Human Relief?
           </h3>
 
           <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto">
-            Test the live story: GreenFork (30 KG Paneer Rice) → AI Match (Hope Shelter 96) → Driver Rahul acceptance → QR verification → Impact Ripple.
+            Whether you are a commercial kitchen, food business, shelter NGO, or volunteer EV driver, register your profile in minutes.
           </p>
 
           <div className="pt-4 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/demo"
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-resq-blue to-resq-green text-white font-black text-sm shadow-glow hover:opacity-95 transition-all flex items-center gap-2"
+            <a
+              href="#gateway"
+              className="px-8 py-4 rounded-xl bg-resq-blue text-white font-black text-sm shadow-glow hover:bg-resq-blue-hover transition-all flex items-center gap-2"
             >
-              <Play className="w-4 h-4 fill-current" />
-              Launch Demo Walkthrough
-            </Link>
+              <Sparkles className="w-4 h-4 text-resq-gold" />
+              Register Stakeholder Account
+              <ArrowRight className="w-4 h-4" />
+            </a>
 
-            <Link
-              href="/network"
+            <a
+              href="#login-section"
               className="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm backdrop-blur border border-white/20 transition-all flex items-center gap-2"
             >
-              <Globe className="w-4 h-4" />
-              Inspect City Network
-            </Link>
+              Sign In to Your Platform
+            </a>
           </div>
         </div>
       </section>

@@ -13,6 +13,8 @@ import {
   Flame,
   Leaf,
   Droplets,
+  KeyRound,
+  AlertCircle,
 } from "lucide-react";
 import { realtime } from "@/lib/realtime";
 
@@ -22,6 +24,7 @@ interface DeliveryHandoffModalProps {
   foodName?: string;
   quantityKg?: number;
   recipientName?: string;
+  expectedPin?: string;
   onClose: () => void;
   onReceiptOpen?: () => void;
   onVerified?: () => void;
@@ -33,17 +36,28 @@ export default function DeliveryHandoffModal({
   foodName = "30 KG Paneer Butter Masala, Jeera Rice & Naan",
   quantityKg = 30,
   recipientName = "Hope Community Shelter",
+  expectedPin = "8492",
   onClose,
   onReceiptOpen,
   onVerified,
 }: DeliveryHandoffModalProps) {
   const [recipientOfficer, setRecipientOfficer] = useState("Sister Teresa Mathews (Kitchen Director)");
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
   if (!isOpen) return null;
 
   const handleDeliveryComplete = async () => {
+    // Validate OTP Handshake PIN
+    const normalizedInput = pin.trim();
+    const normalizedExpected = (expectedPin || "8492").trim();
+    if (!normalizedInput || normalizedInput !== normalizedExpected) {
+      setPinError(`Invalid Verification PIN! Ask receiver for their 4-digit Handshake PIN (Hint: ${expectedPin || "8492"}).`);
+      return;
+    }
+    setPinError(null);
     setIsConfirming(true);
     try {
       await fetch(`/api/rescues/${rescueId}/delivery`, {
@@ -137,18 +151,51 @@ export default function DeliveryHandoffModal({
                 />
               </div>
 
+              {/* Handshake Verification PIN Entry */}
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                    <KeyRound className="w-4 h-4 text-amber-600" />
+                    <span>Enter Receiver's 4-Digit Handshake PIN</span>
+                  </label>
+                  <span className="text-[10px] font-mono text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-bold">
+                    OTP Required
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  maxLength={4}
+                  value={pin}
+                  onChange={(e) => {
+                    setPin(e.target.value);
+                    setPinError(null);
+                  }}
+                  className="w-full text-center text-2xl tracking-[0.5em] font-mono font-black py-2.5 rounded-xl border border-amber-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner"
+                  placeholder="••••"
+                />
+                <p className="text-[11px] text-amber-800">
+                  The recipient shelter received this confidential code generated when the food donor dispatched the order.
+                </p>
+                {pinError && (
+                  <div className="p-2.5 rounded-xl bg-red-100 border border-red-300 text-red-700 text-xs font-bold flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{pinError}</span>
+                  </div>
+                )}
+              </div>
+
               <div className="p-3 bg-resq-green-light rounded-xl border border-resq-green/20 flex items-center gap-2.5 text-xs text-resq-green-hover font-semibold">
                 <ShieldCheck className="w-4 h-4 text-resq-green shrink-0" />
-                <span>Dual verification: Driver GPS + Shelter digital signature active.</span>
+                <span>Cryptographic custody: Handshake PIN + Driver GPS + Timestamp logged.</span>
               </div>
 
               {/* Confirm Handoff Button */}
               <button
                 onClick={handleDeliveryComplete}
-                disabled={isConfirming}
-                className="w-full py-3.5 rounded-xl bg-resq-green hover:bg-resq-green-hover text-white font-bold text-xs shadow-glow-green transition-all"
+                disabled={isConfirming || pin.length !== 4}
+                className="w-full py-3.5 rounded-xl bg-resq-green hover:bg-resq-green-hover disabled:opacity-50 text-white font-bold text-xs shadow-glow-green transition-all"
               >
-                {isConfirming ? "Registering Impact Ripple..." : "Confirm Handoff & Complete Rescue"}
+                {isConfirming ? "Validating PIN & Completing Delivery..." : "Authenticate PIN & Complete Delivery"}
               </button>
             </div>
           ) : (

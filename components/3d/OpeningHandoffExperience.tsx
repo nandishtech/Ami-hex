@@ -341,38 +341,16 @@ export default function OpeningHandoffExperience({ onComplete }: OpeningExperien
           {subheading}
         </p>
 
-        {/* Interactive Buttons appearing in Ready phase */}
+        {/* Primary Gateway Action */}
         <div className="flex flex-wrap items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <a
             href="#gateway"
-            className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-resq-blue text-white font-bold text-sm shadow-glow hover:bg-resq-blue-hover active:scale-95 transition-all"
+            className="flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-resq-blue text-white font-black text-base shadow-glow hover:bg-resq-blue-hover active:scale-95 transition-all"
           >
-            <Sparkles className="w-4 h-4 text-resq-gold" />
-            Register / Sign In Gateway
-            <ArrowRight className="w-4 h-4" />
+            <Sparkles className="w-5 h-5 text-resq-gold" />
+            Enter Registration & Login Gateway
+            <ArrowRight className="w-5 h-5" />
           </a>
-
-          <Link
-            href="/donor"
-            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur border border-white/20 transition-all"
-          >
-            Donor Section
-          </Link>
-
-          <Link
-            href="/driver"
-            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 font-semibold text-sm backdrop-blur border border-emerald-500/30 transition-all"
-          >
-            Delivery Platform
-          </Link>
-
-          <Link
-            href="/demo"
-            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur border border-white/20 transition-all"
-          >
-            <Play className="w-4 h-4 fill-current text-resq-green" />
-            Interactive Demo
-          </Link>
         </div>
 
         {/* Live operational ticker */}

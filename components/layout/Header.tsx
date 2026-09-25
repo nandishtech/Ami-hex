@@ -23,15 +23,14 @@ interface HeaderProps {
 
 export default function Header({ sidebarCollapsed = false }: HeaderProps) {
   const pathname = usePathname();
-  const [session, setSession] = useState<UserSession>(DEMO_USERS.DONOR);
+  const [session, setSession] = useState<UserSession | null>(null);
   const [unreadCount, setUnreadCount] = useState(3);
 
   useEffect(() => {
     setSession(getActiveSession());
 
     const handleAuthChange = (e: any) => {
-      if (e.detail) setSession(e.detail);
-      else setSession(DEMO_USERS.DONOR);
+      setSession(e.detail || null);
     };
 
     window.addEventListener("resqfood-auth-change", handleAuthChange);
@@ -167,15 +166,6 @@ export default function Header({ sidebarCollapsed = false }: HeaderProps) {
           </kbd>
         </button>
 
-        {/* Quick Demo Mode Button */}
-        <Link
-          href="/demo"
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-resq-blue to-resq-green text-white shadow-xs hover:opacity-95 transition-opacity"
-        >
-          <Play className="w-3.5 h-3.5 fill-current" />
-          Demo Flow
-        </Link>
-
         {/* Notifications Icon with live counter */}
         <Link
           href="/notifications"
@@ -191,27 +181,36 @@ export default function Header({ sidebarCollapsed = false }: HeaderProps) {
         </Link>
 
         {/* User Account / Auth Portal Button */}
-        <Link
-          href="/auth"
-          className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-2xl border border-resq-border bg-slate-50 hover:bg-white hover:border-slate-300 transition-all text-left group"
-          title="Switch Profile / Sign In"
-        >
-          <div className="w-7 h-7 rounded-xl overflow-hidden bg-slate-200 shrink-0">
-            <img
-              src={session.avatar || "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=100"}
-              alt={session.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="hidden md:flex flex-col">
-            <span className="text-[11px] font-bold text-resq-navy leading-none">
-              {session.name.split(" ")[0]}
-            </span>
-            <span className="text-[9px] font-black text-resq-blue mt-0.5 leading-none">
-              {session.role}
-            </span>
-          </div>
-        </Link>
+        {session ? (
+          <Link
+            href="/auth"
+            className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-2xl border border-resq-border bg-slate-50 hover:bg-white hover:border-slate-300 transition-all text-left group"
+            title="Switch Profile / Sign In"
+          >
+            <div className="w-7 h-7 rounded-xl overflow-hidden bg-slate-200 shrink-0">
+              <img
+                src={session.avatar || "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=100"}
+                alt={session.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="hidden md:flex flex-col">
+              <span className="text-[11px] font-bold text-resq-navy leading-none">
+                {session.name ? session.name.split(" ")[0] : "User"}
+              </span>
+              <span className="text-[9px] font-black text-resq-blue mt-0.5 leading-none">
+                {session.role}
+              </span>
+            </div>
+          </Link>
+        ) : (
+          <Link
+            href="/auth"
+            className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition-all"
+          >
+            Sign In
+          </Link>
+        )}
       </div>
     </header>
   );

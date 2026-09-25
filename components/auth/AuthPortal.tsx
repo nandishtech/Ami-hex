@@ -30,7 +30,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { UserRole, UserSession } from "@/lib/types";
-import { DEMO_USERS, registerUser, setActiveSession, getRoleRedirectPath } from "@/lib/auth";
+import { DEMO_USERS, registerUser, setActiveSession, getRoleRedirectPath, PERMANENT_ADMIN } from "@/lib/auth";
+import BreadDonationAnimation from "@/components/illustrations/BreadDonationAnimation";
 
 interface AuthPortalProps {
   initialRole?: UserRole;
@@ -188,6 +189,20 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
     setIsLoading(true);
     setErrorMessage(null);
 
+    // Direct check for permanent administrator credentials (admin / admin123)
+    const cleanEmail = loginEmail.trim().toLowerCase();
+    if (
+      (cleanEmail === "admin" || cleanEmail === "admin@hopeplate.org" || cleanEmail === "admin@resqfood.org") &&
+      loginPassword === "admin123"
+    ) {
+      setActiveSession(PERMANENT_ADMIN.user);
+      setSuccessMessage("✓ Permanent Administrator credentials verified! Opening City Admin Command...");
+      setTimeout(() => {
+        router.push("/admin");
+      }, 500);
+      return;
+    }
+
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -328,32 +343,44 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
         {/* Brand Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5" />
-            RESQFOOD Stakeholder Onboarding & Role Gateway
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <img
+              src="/logo.png"
+              alt="HopePlate Charity Food Distribution"
+              className="h-20 sm:h-24 w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform"
+            />
+          </div>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            HOPEPLATE AI Food Rescue & Direct Relief Network
           </div>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-            Rescue Food.{" "}
+            Share Food.{" "}
             <span
               style={{
-                background: "linear-gradient(to right, #1769FF, #FFB703, #22C55E)",
+                background: "linear-gradient(to right, #F59E0B, #10B981, #3B82F6)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Route Hope.
+              Nourish Lives.
             </span>
           </h1>
           <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto">
-            Choose your stakeholder role to register or sign in. Food Donors go to the Donor Section, Delivery Drivers to the Fleet Platform, and Recipient Shelters to their Relief Portal.
+            Connecting commercial kitchens, volunteer EV drivers, and verified shelters in real-time. Choose your stakeholder role below to create an account or sign in.
           </p>
+
+          {/* Bread Donation Storytelling Animation */}
+          <div className="pt-2">
+            <BreadDonationAnimation />
+          </div>
         </div>
 
         {/* Global Notifications */}
         {successMessage && (
           <div
-            className="p-4 rounded-2xl flex items-center gap-3 text-sm font-bold shadow-lg animate-in fade-in"
+            className="p-4 rounded-2xl flex items-center gap-3 text-sm font-bold shadow-lg animate-in fade-in backdrop-blur-xl"
             style={{
               backgroundColor: "rgba(16, 185, 129, 0.2)",
               border: "1px solid rgba(16, 185, 129, 0.5)",
@@ -367,7 +394,7 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
 
         {errorMessage && (
           <div
-            className="p-4 rounded-2xl flex items-center gap-3 text-sm font-bold shadow-lg animate-in fade-in"
+            className="p-4 rounded-2xl flex items-center gap-3 text-sm font-bold shadow-lg animate-in fade-in backdrop-blur-xl"
             style={{
               backgroundColor: "rgba(239, 68, 68, 0.2)",
               border: "1px solid rgba(239, 68, 68, 0.5)",
@@ -380,22 +407,33 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
         )}
 
         {/* ============================================================ */}
-        {/* BOX 1: REGISTRATION BOX ("first there is a resestion box")   */}
+        {/* BOX 1: REGISTRATION BOX (Frosted Glass Look)                  */}
         {/* ============================================================ */}
         <div
           id="registration-section"
-          className="rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+          className="rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-2xl bg-white/[0.04] border border-white/20"
           style={{
-            backgroundColor: "#0C2138",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
           }}
         >
-          {/* Section Indicator Badge */}
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-700/60">
+          {/* Looping Video Background Layer */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/TZGWNH-iaHk?autoplay=1&mute=1&loop=1&playlist=TZGWNH-iaHk&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] min-w-full min-h-full object-cover pointer-events-none opacity-20"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              title="Registration Section Video Background"
+            />
+            {/* Contrast-preserving dark glassmorphic gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#071626]/90 via-[#0A1E35]/80 to-[#071626]/90 backdrop-blur-[2px]" />
+          </div>
+
+          <div className="relative z-10">
+            {/* Section Indicator Badge */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-white/10">
             <div className="flex items-center gap-3">
               <span
-                className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm text-white shadow-md"
-                style={{ backgroundColor: "#1769FF" }}
+                className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm text-white shadow-md bg-amber-500"
               >
                 1
               </span>
@@ -404,7 +442,7 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
                   Registration Box: Create Stakeholder Account
                 </h2>
                 <p className="text-xs text-slate-300">
-                  Select your profile category and register with required operational credentials
+                  Select your profile category and register with required operational credentials (Admin is registered internally)
                 </p>
               </div>
             </div>
@@ -415,7 +453,7 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
               <button
                 type="button"
                 onClick={autofillDonor}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold text-blue-300 hover:text-white bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 transition-all"
+                className="px-2.5 py-1 rounded-lg text-xs font-bold text-amber-300 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 transition-all"
               >
                 🍱 Donor
               </button>
@@ -436,43 +474,42 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
             </div>
           </div>
 
-          {/* Role Differentiator Selector (4 Distinct Visual Cards) */}
+          {/* Role Differentiator Selector (3 Stakeholder Roles Only - Admin Removed) */}
           <div className="space-y-3 mb-8">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
               Step 1 • Select Stakeholder Role To Register:
             </label>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* ROLE 1: DONOR */}
               <div
                 onClick={() => setSelectedRole("DONOR")}
                 className="p-4 rounded-2xl cursor-pointer transition-all duration-200 text-left relative"
                 style={{
-                  backgroundColor: selectedRole === "DONOR" ? "#133154" : "#091B30",
+                  backgroundColor: selectedRole === "DONOR" ? "rgba(245, 158, 11, 0.2)" : "rgba(255, 255, 255, 0.04)",
                   border:
                     selectedRole === "DONOR"
-                      ? "2px solid #1769FF"
-                      : "1px solid rgba(255, 255, 255, 0.08)",
+                      ? "2px solid #F59E0B"
+                      : "1px solid rgba(255, 255, 255, 0.1)",
                   boxShadow:
-                    selectedRole === "DONOR" ? "0 0 20px rgba(23, 105, 255, 0.35)" : "none",
+                    selectedRole === "DONOR" ? "0 0 20px rgba(245, 158, 11, 0.35)" : "none",
                 }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                    style={{ backgroundColor: "#1769FF" }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white bg-amber-500"
                   >
                     <Utensils className="w-5 h-5" />
                   </div>
                   {selectedRole === "DONOR" && (
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-ping" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
                   )}
                 </div>
                 <h3 className="text-base font-black text-white">1. Food Donor</h3>
                 <p className="text-xs text-slate-300 mt-1">
                   Restaurants, banquets, hotels, caterers, bakeries & supermarkets.
                 </p>
-                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-blue-400">
+                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-amber-400">
                   <span>Routes to Donor Section</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </div>
@@ -483,19 +520,18 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
                 onClick={() => setSelectedRole("DRIVER")}
                 className="p-4 rounded-2xl cursor-pointer transition-all duration-200 text-left relative"
                 style={{
-                  backgroundColor: selectedRole === "DRIVER" ? "#0D382B" : "#091B30",
+                  backgroundColor: selectedRole === "DRIVER" ? "rgba(16, 185, 129, 0.2)" : "rgba(255, 255, 255, 0.04)",
                   border:
                     selectedRole === "DRIVER"
                       ? "2px solid #10B981"
-                      : "1px solid rgba(255, 255, 255, 0.08)",
+                      : "1px solid rgba(255, 255, 255, 0.1)",
                   boxShadow:
                     selectedRole === "DRIVER" ? "0 0 20px rgba(16, 185, 129, 0.35)" : "none",
                 }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                    style={{ backgroundColor: "#10B981" }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white bg-emerald-500"
                   >
                     <Truck className="w-5 h-5" />
                   </div>
@@ -518,19 +554,18 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
                 onClick={() => setSelectedRole("RECIPIENT")}
                 className="p-4 rounded-2xl cursor-pointer transition-all duration-200 text-left relative"
                 style={{
-                  backgroundColor: selectedRole === "RECIPIENT" ? "#311C54" : "#091B30",
+                  backgroundColor: selectedRole === "RECIPIENT" ? "rgba(168, 85, 247, 0.2)" : "rgba(255, 255, 255, 0.04)",
                   border:
                     selectedRole === "RECIPIENT"
                       ? "2px solid #A855F7"
-                      : "1px solid rgba(255, 255, 255, 0.08)",
+                      : "1px solid rgba(255, 255, 255, 0.1)",
                   boxShadow:
                     selectedRole === "RECIPIENT" ? "0 0 20px rgba(168, 85, 247, 0.35)" : "none",
                 }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                    style={{ backgroundColor: "#A855F7" }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white bg-purple-500"
                   >
                     <HeartHandshake className="w-5 h-5" />
                   </div>
@@ -544,41 +579,6 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
                 </p>
                 <div className="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-purple-400">
                   <span>Opens Shelter Platform</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
-
-              {/* ROLE 4: ADMIN */}
-              <div
-                onClick={() => setSelectedRole("ADMIN")}
-                className="p-4 rounded-2xl cursor-pointer transition-all duration-200 text-left relative"
-                style={{
-                  backgroundColor: selectedRole === "ADMIN" ? "#382A0C" : "#091B30",
-                  border:
-                    selectedRole === "ADMIN"
-                      ? "2px solid #F59E0B"
-                      : "1px solid rgba(255, 255, 255, 0.08)",
-                  boxShadow:
-                    selectedRole === "ADMIN" ? "0 0 20px rgba(245, 158, 11, 0.35)" : "none",
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                    style={{ backgroundColor: "#F59E0B" }}
-                  >
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  {selectedRole === "ADMIN" && (
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-                  )}
-                </div>
-                <h3 className="text-base font-black text-white">4. City Admin</h3>
-                <p className="text-xs text-slate-300 mt-1">
-                  Urban food authority, cold-chain compliance & logistics audit.
-                </p>
-                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-amber-400">
-                  <span>Opens Admin Command</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </div>
               </div>
@@ -999,45 +999,6 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
                   </div>
                 </div>
               )}
-
-              {/* 4. ADMIN DIFFERENTIATION */}
-              {selectedRole === "ADMIN" && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1">
-                      Municipal Department
-                    </label>
-                    <input
-                      type="text"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1">
-                      Jurisdiction Sector
-                    </label>
-                    <input
-                      type="text"
-                      value={jurisdiction}
-                      onChange={(e) => setJurisdiction(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1">
-                      Officer Staff ID
-                    </label>
-                    <input
-                      type="text"
-                      value={staffId}
-                      onChange={(e) => setStaffId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-amber-500"
-                    />
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Registration Action Button */}
@@ -1053,12 +1014,10 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
                 style={{
                   backgroundColor:
                     selectedRole === "DONOR"
-                      ? "#1769FF"
+                      ? "#F59E0B"
                       : selectedRole === "DRIVER"
                       ? "#10B981"
-                      : selectedRole === "RECIPIENT"
-                      ? "#A855F7"
-                      : "#F59E0B",
+                      : "#A855F7",
                 }}
               >
                 {isLoading ? (
@@ -1073,9 +1032,7 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
                         ? "Register & Enter Food Donor Section"
                         : selectedRole === "DRIVER"
                         ? "Register & Open Delivery Platform"
-                        : selectedRole === "RECIPIENT"
-                        ? "Register & Open Recipient Platform"
-                        : "Register & Enter Admin Command"}
+                        : "Register & Open Recipient Platform"}
                     </span>
                     <ArrowRight className="w-4 h-4" />
                   </>
@@ -1083,392 +1040,349 @@ function AuthPortalContent({ initialRole, initialMode, compact = false }: AuthPo
               </button>
             </div>
           </form>
+          </div>
         </div>
 
         {/* ============================================================ */}
-        {/* BOX 2: LOGIN SECTION ("then the login section")              */}
+        {/* BOX 2: SIGN IN SECTION (Frosted Glass Look + Permanent Admin) */}
         {/* ============================================================ */}
         <div
           id="login-section"
-          className="rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+          className="rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-2xl bg-white/[0.04] border border-white/20"
           style={{
-            backgroundColor: "#0A1D32",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
           }}
         >
           {/* Section Indicator Badge */}
-          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-700/60">
-            <span
-              className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm text-white shadow-md"
-              style={{ backgroundColor: "#10B981" }}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <span
+                className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm text-white shadow-md bg-emerald-500"
+              >
+                2
+              </span>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-white">
+                  Sign In Section: Access Your Stakeholder Portal
+                </h2>
+                <p className="text-xs text-slate-300">
+                  Select your role and enter your registered credentials to launch your operational dashboard
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Demo Credentials Autofill */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] text-slate-400 font-medium">Quick Credentials:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginRole("DONOR");
+                  setLoginEmail("vikram@greenfork.com");
+                  setLoginPassword("••••••••");
+                }}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold text-amber-300 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 transition-all"
+              >
+                🍱 Donor
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginRole("DRIVER");
+                  setLoginEmail("rahul.driver@resqfood.org");
+                  setLoginPassword("••••••••");
+                }}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-300 hover:text-white bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 transition-all"
+              >
+                🚚 Driver
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginRole("RECIPIENT");
+                  setLoginEmail("teresa@hopeshelter.org");
+                  setLoginPassword("••••••••");
+                }}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold text-purple-300 hover:text-white bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 transition-all"
+              >
+                🏠 Shelter
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginRole("ADMIN");
+                  setLoginEmail("admin");
+                  setLoginPassword("admin123");
+                }}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold text-amber-300 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 transition-all"
+              >
+                🛡️ Admin (admin/admin123)
+              </button>
+            </div>
+          </div>
+
+          {/* PERMANENT ADMIN CREDENTIALS BANNER */}
+          <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">Permanent System Administrator Access</span>
+                  <span className="text-[10px] bg-amber-400/20 text-amber-300 font-mono px-2 py-0.5 rounded-full font-bold">PERMANENT CREDENTIALS</span>
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Admin Username: <strong className="text-white font-mono bg-black/40 px-1.5 py-0.5 rounded">admin</strong> • Password: <strong className="text-white font-mono bg-black/40 px-1.5 py-0.5 rounded">admin123</strong>
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setLoginRole("ADMIN");
+                setLoginEmail("admin");
+                setLoginPassword("admin123");
+                handleLaunchProfile("ADMIN");
+              }}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"
             >
-              2
-            </span>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white">
-                Login Section: Fast Profile Access
-              </h2>
-              <p className="text-xs text-slate-300">
-                Already registered? Click any persona card below for immediate 1-click access, or log in with credentials
-              </p>
+              <Zap className="w-4 h-4 fill-current" />
+              <span>Instant Admin Login (admin / admin123)</span>
+            </button>
+          </div>
+
+          {/* Role Selection Tabs for Sign In */}
+          <div className="space-y-3 mb-6">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+              Step 1 • Select Your Account Role:
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* DONOR TAB */}
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginRole("DONOR");
+                  if (!loginEmail || loginEmail.includes("@resqfood.org") || loginEmail.includes("teresa@")) {
+                    setLoginEmail("vikram@greenfork.com");
+                  }
+                }}
+                className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                  loginRole === "DONOR"
+                    ? "bg-blue-600/20 border-blue-500 text-white shadow-lg shadow-blue-500/10 ring-1 ring-blue-500"
+                    : "bg-slate-900/60 border-slate-700/80 text-slate-300 hover:border-slate-600 hover:bg-slate-900"
+                }`}
+              >
+                <div className={`p-2 rounded-xl shrink-0 ${loginRole === "DONOR" ? "bg-blue-500 text-white" : "bg-slate-800 text-slate-400"}`}>
+                  <Utensils className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-black">Food Donor</div>
+                  <div className="text-[10px] text-slate-400">Routes to /donor</div>
+                </div>
+              </button>
+
+              {/* DRIVER TAB */}
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginRole("DRIVER");
+                  if (!loginEmail || loginEmail.includes("vikram@") || loginEmail.includes("teresa@") || loginEmail.includes("admin@")) {
+                    setLoginEmail("rahul.driver@resqfood.org");
+                  }
+                }}
+                className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                  loginRole === "DRIVER"
+                    ? "bg-emerald-600/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500"
+                    : "bg-slate-900/60 border-slate-700/80 text-slate-300 hover:border-slate-600 hover:bg-slate-900"
+                }`}
+              >
+                <div className={`p-2 rounded-xl shrink-0 ${loginRole === "DRIVER" ? "bg-emerald-500 text-white" : "bg-slate-800 text-slate-400"}`}>
+                  <Truck className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-black">Delivery Driver</div>
+                  <div className="text-[10px] text-slate-400">Opens /driver</div>
+                </div>
+              </button>
+
+              {/* RECIPIENT TAB */}
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginRole("RECIPIENT");
+                  if (!loginEmail || loginEmail.includes("vikram@") || loginEmail.includes("rahul.") || loginEmail.includes("admin@")) {
+                    setLoginEmail("teresa@hopeshelter.org");
+                  }
+                }}
+                className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                  loginRole === "RECIPIENT"
+                    ? "bg-purple-600/20 border-purple-500 text-white shadow-lg shadow-purple-500/10 ring-1 ring-purple-500"
+                    : "bg-slate-900/60 border-slate-700/80 text-slate-300 hover:border-slate-600 hover:bg-slate-900"
+                }`}
+              >
+                <div className={`p-2 rounded-xl shrink-0 ${loginRole === "RECIPIENT" ? "bg-purple-500 text-white" : "bg-slate-800 text-slate-400"}`}>
+                  <HeartHandshake className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-black">Recipient Shelter</div>
+                  <div className="text-[10px] text-slate-400">Opens /recipient</div>
+                </div>
+              </button>
+
+              {/* ADMIN TAB */}
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginRole("ADMIN");
+                  if (!loginEmail || loginEmail.includes("vikram@") || loginEmail.includes("rahul.") || loginEmail.includes("teresa@")) {
+                    setLoginEmail("admin@resqfood.org");
+                  }
+                }}
+                className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                  loginRole === "ADMIN"
+                    ? "bg-amber-600/20 border-amber-500 text-white shadow-lg shadow-amber-500/10 ring-1 ring-amber-500"
+                    : "bg-slate-900/60 border-slate-700/80 text-slate-300 hover:border-slate-600 hover:bg-slate-900"
+                }`}
+              >
+                <div className={`p-2 rounded-xl shrink-0 ${loginRole === "ADMIN" ? "bg-amber-500 text-white" : "bg-slate-800 text-slate-400"}`}>
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-black">City Operations</div>
+                  <div className="text-[10px] text-slate-400">Opens /admin</div>
+                </div>
+              </button>
             </div>
           </div>
 
-          {/* 4 DIRECT 1-CLICK PROFILE LAUNCHERS */}
-          <div className="space-y-3 mb-8">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Instant 1-Click Profile Launchers (Direct Role Routing):
-              </span>
-              <span className="text-[11px] text-emerald-400 font-bold">
-                No Password Required for Demo Personas
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* PROFILE 1: FOOD DONOR */}
-              <div
-                className="p-5 rounded-2xl flex flex-col justify-between transition-all hover:scale-[1.02] duration-200"
-                style={{
-                  backgroundColor: "#0F2644",
-                  border: "1px solid rgba(23, 105, 255, 0.35)",
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-blue-300"
-                      style={{ backgroundColor: "rgba(23, 105, 255, 0.25)" }}
-                    >
-                      Food Donor
-                    </span>
-                    <Utensils className="w-4 h-4 text-blue-400" />
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-3">
-                    <img
-                      src={DEMO_USERS.DONOR.avatar}
-                      alt="Chef Vikram"
-                      className="w-11 h-11 rounded-xl object-cover border border-blue-400/40"
-                    />
-                    <div>
-                      <h4 className="text-sm font-black text-white leading-tight">
-                        Chef Vikram Adiga
-                      </h4>
-                      <p className="text-[11px] text-slate-300 truncate max-w-[150px]">
-                        GreenFork Banquets
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 text-[11px] text-slate-300 mb-4 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">License:</span>
-                      <span className="font-bold text-blue-300">FSSAI Certified</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Daily Surplus:</span>
-                      <span className="font-bold text-white">30-50 KG</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Location:</span>
-                      <span className="font-bold text-slate-300">Indiranagar, BLR</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleLaunchProfile("DONOR")}
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-3 rounded-xl font-black text-xs text-white shadow-md flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-95"
-                  style={{ backgroundColor: "#1769FF" }}
-                >
-                  <span>Open Donor Section</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* PROFILE 2: DELIVERY PERSON (DRIVER) */}
-              <div
-                className="p-5 rounded-2xl flex flex-col justify-between transition-all hover:scale-[1.02] duration-200"
-                style={{
-                  backgroundColor: "#0B2D22",
-                  border: "1px solid rgba(16, 185, 129, 0.35)",
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-emerald-300"
-                      style={{ backgroundColor: "rgba(16, 185, 129, 0.25)" }}
-                    >
-                      Delivery Person
-                    </span>
-                    <Truck className="w-4 h-4 text-emerald-400" />
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-3">
-                    <img
-                      src={DEMO_USERS.DRIVER.avatar}
-                      alt="Rahul Sharma"
-                      className="w-11 h-11 rounded-xl object-cover border border-emerald-400/40"
-                    />
-                    <div>
-                      <h4 className="text-sm font-black text-white leading-tight">
-                        Rahul Sharma
-                      </h4>
-                      <p className="text-[11px] text-slate-300 truncate max-w-[150px]">
-                        Zero-Emission EV Fleet
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 text-[11px] text-slate-300 mb-4 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Vehicle:</span>
-                      <span className="font-bold text-emerald-300">Tata Nexon EV</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Payload:</span>
-                      <span className="font-bold text-white">85 KG Cargo</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Hold Tech:</span>
-                      <span className="font-bold text-emerald-300">68°C Heated Box</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleLaunchProfile("DRIVER")}
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-3 rounded-xl font-black text-xs text-white shadow-md flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-95"
-                  style={{ backgroundColor: "#10B981" }}
-                >
-                  <span>Open Delivery Platform</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* PROFILE 3: RECIPIENT SHELTER */}
-              <div
-                className="p-5 rounded-2xl flex flex-col justify-between transition-all hover:scale-[1.02] duration-200"
-                style={{
-                  backgroundColor: "#24153E",
-                  border: "1px solid rgba(168, 85, 247, 0.35)",
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-purple-300"
-                      style={{ backgroundColor: "rgba(168, 85, 247, 0.25)" }}
-                    >
-                      Recipient Shelter
-                    </span>
-                    <HeartHandshake className="w-4 h-4 text-purple-400" />
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-3">
-                    <img
-                      src={DEMO_USERS.RECIPIENT.avatar}
-                      alt="Sister Teresa"
-                      className="w-11 h-11 rounded-xl object-cover border border-purple-400/40"
-                    />
-                    <div>
-                      <h4 className="text-sm font-black text-white leading-tight">
-                        Sister Teresa Mathews
-                      </h4>
-                      <p className="text-[11px] text-slate-300 truncate max-w-[150px]">
-                        Hope Community Shelter
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 text-[11px] text-slate-300 mb-4 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Relief Meals:</span>
-                      <span className="font-bold text-purple-300">200 Meals Daily</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Intake Dock:</span>
-                      <span className="font-bold text-white">180 KG Cold/Hot</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Location:</span>
-                      <span className="font-bold text-slate-300">Old Airport Rd</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleLaunchProfile("RECIPIENT")}
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-3 rounded-xl font-black text-xs text-white shadow-md flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-95"
-                  style={{ backgroundColor: "#A855F7" }}
-                >
-                  <span>Open Shelter Platform</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* PROFILE 4: CITY ADMIN */}
-              <div
-                className="p-5 rounded-2xl flex flex-col justify-between transition-all hover:scale-[1.02] duration-200"
-                style={{
-                  backgroundColor: "#2B1E0A",
-                  border: "1px solid rgba(245, 158, 11, 0.35)",
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-amber-300"
-                      style={{ backgroundColor: "rgba(245, 158, 11, 0.25)" }}
-                    >
-                      City Operations
-                    </span>
-                    <ShieldCheck className="w-4 h-4 text-amber-400" />
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-3">
-                    <img
-                      src={DEMO_USERS.ADMIN.avatar}
-                      alt="Dr Aarti Raman"
-                      className="w-11 h-11 rounded-xl object-cover border border-amber-400/40"
-                    />
-                    <div>
-                      <h4 className="text-sm font-black text-white leading-tight">
-                        Dr. Aarti Raman
-                      </h4>
-                      <p className="text-[11px] text-slate-300 truncate max-w-[150px]">
-                        Metropolitan Authority
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 text-[11px] text-slate-300 mb-4 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Jurisdiction:</span>
-                      <span className="font-bold text-amber-300">Bengaluru Central</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">SLA Audit:</span>
-                      <span className="font-bold text-white">99.2% Compliant</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Authority:</span>
-                      <span className="font-bold text-slate-300">BBMP Super Ops</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleLaunchProfile("ADMIN")}
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-3 rounded-xl font-black text-xs text-white shadow-md flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-95"
-                  style={{ backgroundColor: "#F59E0B" }}
-                >
-                  <span>Open Admin Command</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* CREDENTIALS LOGIN FORM */}
+          {/* Sign In Form */}
           <form
             onSubmit={handleLoginSubmit}
-            className="p-5 rounded-2xl space-y-4"
-            style={{
-              backgroundColor: "rgba(0, 0, 0, 0.25)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-            }}
+            className="p-5 sm:p-6 rounded-2xl space-y-5 bg-slate-900/50 border border-slate-800"
           >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-700/60">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                <Lock className="w-3.5 h-3.5 text-slate-400" />
-                Or Sign In With Account Credentials
-              </span>
-              <span className="text-[11px] text-slate-400">Standard Email & Password Auth</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">
-                  Stakeholder Role Profile
-                </label>
-                <select
-                  value={loginRole}
-                  onChange={(e) => setLoginRole(e.target.value as UserRole)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs sm:text-sm focus:border-blue-500"
-                >
-                  <option value="DONOR">🍱 Food Donor (Routes to /donor)</option>
-                  <option value="DRIVER">🚚 Delivery Driver (Opens /driver)</option>
-                  <option value="RECIPIENT">🏠 Recipient Shelter (Opens /recipient)</option>
-                  <option value="ADMIN">🛡️ City Admin (Opens /admin)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">
+                <label className="text-xs font-bold text-slate-300 block mb-1.5">
                   Registered Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="email"
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs sm:text-sm focus:border-blue-500"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs sm:text-sm focus:border-blue-500 focus:outline-none"
                     placeholder="name@organization.com"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">
+                <label className="text-xs font-bold text-slate-300 block mb-1.5">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="password"
                     required
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs sm:text-sm focus:border-blue-500"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs sm:text-sm focus:border-blue-500 focus:outline-none"
                     placeholder="Enter password"
                   />
                 </div>
               </div>
             </div>
 
+            {/* Role Gateway Routing Notice */}
+            <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between gap-3 text-xs text-slate-300">
+              <div className="flex items-center gap-2.5">
+                <span
+                  className="w-2.5 h-2.5 rounded-full animate-pulse"
+                  style={{
+                    backgroundColor:
+                      loginRole === "DONOR"
+                        ? "#3B82F6"
+                        : loginRole === "DRIVER"
+                        ? "#10B981"
+                        : loginRole === "RECIPIENT"
+                        ? "#A855F7"
+                        : "#F59E0B",
+                  }}
+                />
+                <span>
+                  Logging in as{" "}
+                  <strong className="text-white">
+                    {loginRole === "DONOR"
+                      ? "Food Donor"
+                      : loginRole === "DRIVER"
+                      ? "Delivery Driver"
+                      : loginRole === "RECIPIENT"
+                      ? "Recipient Shelter"
+                      : "City Admin"}
+                  </strong>{" "}
+                  routes you to{" "}
+                  <code className="text-blue-300 bg-slate-900 px-1.5 py-0.5 rounded text-[11px]">
+                    {loginRole === "DONOR"
+                      ? "/donor"
+                      : loginRole === "DRIVER"
+                      ? "/driver"
+                      : loginRole === "RECIPIENT"
+                      ? "/recipient"
+                      : "/admin"}
+                  </code>{" "}
+                  with only your role-specific navigation visible.
+                </span>
+              </div>
+              <a
+                href="#registration-section"
+                className="text-xs text-blue-400 hover:text-blue-300 font-bold shrink-0 hidden sm:inline"
+              >
+                Register Account ↑
+              </a>
+            </div>
+
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-1">
               <span className="text-[11px] text-slate-400">
-                Signing in dynamically directs your session to your assigned operational hub.
+                Encrypted session authentication with automatic role scoping.
               </span>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-black text-xs text-white shadow-md flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
-                style={{ backgroundColor: "#1769FF" }}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-sm text-white shadow-xl flex items-center justify-center gap-2.5 transition-all hover:opacity-95 active:scale-95 disabled:opacity-50"
+                style={{
+                  backgroundColor:
+                    loginRole === "DONOR"
+                      ? "#1769FF"
+                      : loginRole === "DRIVER"
+                      ? "#10B981"
+                      : loginRole === "RECIPIENT"
+                      ? "#A855F7"
+                      : "#F59E0B",
+                }}
               >
                 {isLoading ? (
                   <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <RefreshCw className="w-4 h-4 animate-spin" />
                     <span>Signing In...</span>
                   </>
                 ) : (
                   <>
-                    <span>Sign In & Open {loginRole} Section</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span>
+                      Sign In & Enter{" "}
+                      {loginRole === "DONOR"
+                        ? "Food Donor Section"
+                        : loginRole === "DRIVER"
+                        ? "Delivery Driver Platform"
+                        : loginRole === "RECIPIENT"
+                        ? "Recipient Shelter Platform"
+                        : "City Admin Command"}
+                    </span>
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Utensils,
   PlusCircle,
@@ -23,18 +24,31 @@ import {
   Calendar,
   ChevronRight,
   FileSpreadsheet,
+  Coins,
 } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import AiDonationModal from "@/components/donor/AiDonationModal";
 import RescueNetworkMap from "@/components/maps/RescueNetworkMap";
 import StakeholderAccessGate from "@/components/auth/StakeholderAccessGate";
+import LeaderboardAndTokenHub from "@/components/leaderboard/LeaderboardAndTokenHub";
 import { MapMarker } from "@/lib/maps";
 
-export default function DonorDashboardPage() {
+function DonorDashboardContent() {
+  const searchParams = useSearchParams();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"ACTIVE" | "HISTORY" | "TEMPLATES">("ACTIVE");
+  const [activeTab, setActiveTab] = useState<"ACTIVE" | "HISTORY" | "LEADERBOARD">("ACTIVE");
   const [selectedRescueId, setSelectedRescueId] = useState<string>("RF-10283");
   const [showMatchModal, setShowMatchModal] = useState(false);
+
+  useEffect(() => {
+    if (searchParams?.get("action") === "create") {
+      setIsCreateModalOpen(true);
+    }
+    const tab = searchParams?.get("tab")?.toUpperCase();
+    if (tab === "LEADERBOARD" || tab === "HISTORY" || tab === "ACTIVE") {
+      setActiveTab(tab as any);
+    }
+  }, [searchParams]);
 
   // 4 Distinct KPI Modules
   const kpis = {
@@ -48,7 +62,7 @@ export default function DonorDashboardPage() {
     avgDispatchMins: 14,
   };
 
-  const donorDonations = [
+  const [rescues, setRescues] = useState([
     {
       id: "RF-10283",
       foodName: "Paneer Butter Masala, Jeera Rice & Garlic Naan",
@@ -62,6 +76,7 @@ export default function DonorDashboardPage() {
       driver: "Rahul Sharma",
       driverVehicle: "Tata Nexon EV • DL-04-E-8291",
       driverPhone: "+91 98450 12839",
+      deliveryPin: "8492",
       eta: "12 mins",
       speed: "34 km/h",
       temperature: "68°C (Hot Hold)",
@@ -93,9 +108,10 @@ export default function DonorDashboardPage() {
       urgency: "CRITICAL",
       recipient: "AI Matching in progress...",
       recipientAddress: "Indiranagar Hub Depot",
-      driver: "Dispatching nearby driver...",
+      driver: "Dispatching nearby driver (<10 KM)...",
       driverVehicle: "Refrigerated / Insulated EV",
       driverPhone: "--",
+      deliveryPin: "3917",
       eta: "Express window (<38m)",
       speed: "--",
       temperature: "72°C (Insulated Kettle)",
@@ -112,7 +128,7 @@ export default function DonorDashboardPage() {
         reasons: [
           "Critical urgency: Hot food window expires at 8:30 PM",
           "Candidate: Ananda Community Kitchen (3.2 KM) ready for batch intake",
-          "Top available driver: Farooq Ahmed (1.4 KM away)",
+          "Top available driver within 10 KM range assigned",
         ],
       },
     },
@@ -129,6 +145,7 @@ export default function DonorDashboardPage() {
       driver: "Priya Nair",
       driverVehicle: "Piaggio Ape E-Xtra EV",
       driverPhone: "+91 99201 44820",
+      deliveryPin: "5208",
       eta: "Pickup in 8 mins",
       speed: "Stationary",
       temperature: "4°C (Cold Chain)",
@@ -148,7 +165,7 @@ export default function DonorDashboardPage() {
         ],
       },
     },
-  ];
+  ]);
 
   const completedHistory = [
     {
@@ -220,7 +237,7 @@ export default function DonorDashboardPage() {
     },
   ];
 
-  const activeRescue = donorDonations.find((d) => d.id === selectedRescueId) || donorDonations[0];
+  const activeRescue = rescues.find((d) => d.id === selectedRescueId) || rescues[0];
 
   return (
     <div className="w-full max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -409,7 +426,7 @@ export default function DonorDashboardPage() {
                   activeTab === "ACTIVE" ? "bg-white text-resq-navy shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
-                Active ({donorDonations.length})
+                Active ({rescues.length})
               </button>
               <button
                 onClick={() => setActiveTab("HISTORY")}
@@ -419,12 +436,25 @@ export default function DonorDashboardPage() {
               >
                 Delivered ({completedHistory.length})
               </button>
+              <button
+                onClick={() => setActiveTab("LEADERBOARD")}
+                className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+                  activeTab === "LEADERBOARD" ? "bg-amber-500 text-white shadow-sm" : "text-amber-700 hover:text-amber-900"
+                }`}
+              >
+                <Coins className="w-3.5 h-3.5" />
+                Leaderboard & Tokens
+              </button>
             </div>
           </div>
 
-          {activeTab === "ACTIVE" ? (
+          {activeTab === "LEADERBOARD" ? (
+            <div className="space-y-4">
+              <LeaderboardAndTokenHub currentRole="DONOR" />
+            </div>
+          ) : activeTab === "ACTIVE" ? (
             <div className="space-y-3">
-              {donorDonations.map((donation) => {
+              {rescues.map((donation) => {
                 const isSelected = selectedRescueId === donation.id;
                 return (
                   <div
@@ -510,6 +540,24 @@ export default function DonorDashboardPage() {
                           Driver: <strong className="text-resq-navy">{donation.driver}</strong>
                         </span>
                       </div>
+                    </div>
+
+                    {/* Handshake Verification PIN Security Badge */}
+                    <div className="mt-3.5 p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
+                        <div>
+                          <span className="text-[11px] font-bold text-amber-900 block">
+                            Recipient Dropoff Handshake PIN
+                          </span>
+                          <span className="text-[10px] text-amber-700">
+                            Auto-sent to recipient shelter. Courier enters this to confirm delivery.
+                          </span>
+                        </div>
+                      </div>
+                      <span className="font-mono text-base font-black px-3 py-1 rounded-xl bg-amber-500 text-white tracking-widest shadow-sm">
+                        {donation.deliveryPin || "8492"}
+                      </span>
                     </div>
 
                     {/* Card Actions */}
@@ -750,10 +798,55 @@ export default function DonorDashboardPage() {
       <AiDonationModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={(newDonation) => {
+        onSuccess={(newDonation: any) => {
           setIsCreateModalOpen(false);
+          const formattedDonation = {
+            id: newDonation.id || `RF-${Math.floor(10000 + Math.random() * 90000)}`,
+            foodName: newDonation.foodName || "Surplus Kitchen Batch",
+            category: newDonation.category || "Prepared Meals",
+            quantity: Number(newDonation.quantity) || 25,
+            unit: newDonation.unit || "KG",
+            status: "POSTED",
+            urgency: newDonation.urgency || "HIGH",
+            recipient: "AI Matching with nearest verified shelter (<10 KM)...",
+            recipientAddress: "Indiranagar / Old Airport Road Corridor",
+            driver: "Searching available couriers in 10 KM range...",
+            driverVehicle: "Insulated / Cold-Chain EV Fleet",
+            driverPhone: "--",
+            deliveryPin: newDonation.deliveryPin || String(Math.floor(1000 + Math.random() * 9000)),
+            eta: "Dispatching (<25m)",
+            speed: "--",
+            temperature: newDonation.temperature || "65°C (Safe Hot Hold)",
+            time: "Just now",
+            step: 1,
+            totalSteps: 5,
+            score: 96,
+            matchRationale: {
+              urgency: 25,
+              distance: 24,
+              capacity: 22,
+              compatibility: 15,
+              driver: 10,
+              reasons: [
+                "Fresh surplus batch logged in HopePlate real-time ledger",
+                "Proximity scan restricted to couriers within 10 KM range",
+                "Direct recipient handshake verification PIN generated",
+              ],
+            },
+          };
+          setRescues((prev) => [formattedDonation, ...prev]);
+          setSelectedRescueId(formattedDonation.id);
+          setActiveTab("ACTIVE");
         }}
       />
     </div>
+  );
+}
+
+export default function DonorDashboardPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-400">Loading donor operations...</div>}>
+      <DonorDashboardContent />
+    </Suspense>
   );
 }

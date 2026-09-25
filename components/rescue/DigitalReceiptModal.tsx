@@ -122,11 +122,13 @@ export default function DigitalReceiptModal({
           <div className="flex items-start justify-between border-b border-resq-border pb-6">
             <div>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-resq-navy flex items-center justify-center text-white font-black text-xs">
-                  RQ
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="HopePlate"
+                  className="h-9 w-auto object-contain"
+                />
                 <span className="text-base font-black tracking-tight text-resq-navy">
-                  RESQFOOD
+                  HOPEPLATE
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 mt-1 font-medium">

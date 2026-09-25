@@ -28,7 +28,10 @@ export default function MobileBottomNav() {
   const [role, setRole] = useState<UserRole>("DONOR");
 
   useEffect(() => {
-    setRole(getActiveSession().role);
+    const s = getActiveSession();
+    if (s?.role) {
+      setRole(s.role);
+    }
   }, [pathname]);
 
   // Role-specific bottom navigation configurations as per Spec 63

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   HeartHandshake,
   Sliders,
@@ -20,18 +21,38 @@ import {
   Thermometer,
   PackageCheck,
   Flame,
+  Coins,
+  X,
+  Download,
 } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import RescueNetworkMap from "@/components/maps/RescueNetworkMap";
 import StakeholderAccessGate from "@/components/auth/StakeholderAccessGate";
+import LeaderboardAndTokenHub from "@/components/leaderboard/LeaderboardAndTokenHub";
+import DigitalReceiptModal from "@/components/rescue/DigitalReceiptModal";
 import { MapMarker } from "@/lib/maps";
 
-export default function RecipientDashboardPage() {
+function RecipientDashboardContent() {
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<"INTAKE" | "LEADERBOARD">("INTAKE");
   const [capacityKg, setCapacityKg] = useState<number>(180);
   const [capacityUpdatedToast, setCapacityUpdatedToast] = useState(false);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [isVerified, setIsVerified] = useState(false);
+  const [isAddNeedModalOpen, setIsAddNeedModalOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState("Dry Grains & Pulses");
+  const [newCatKg, setNewCatKg] = useState(25);
+  const [newCatUrgency, setNewCatUrgency] = useState("MEDIUM");
+  const [newCatTemp, setNewCatTemp] = useState("ROOM_TEMP");
+
+  useEffect(() => {
+    const tab = searchParams?.get("tab")?.toUpperCase();
+    if (tab === "LEADERBOARD" || tab === "INTAKE") {
+      setActiveTab(tab as any);
+    }
+  }, [searchParams]);
 
   const [needs, setNeeds] = useState([
     {
@@ -73,7 +94,7 @@ export default function RecipientDashboardPage() {
       status: "IN_TRANSIT",
       urgency: "HIGH",
       temperature: "68°C (Safe Hot Hold)",
-      pin: "8291",
+      pin: "8492",
     },
   ];
 
@@ -111,12 +132,30 @@ export default function RecipientDashboardPage() {
   };
 
   const handleVerifyDropoff = () => {
-    if (pinInput === "8291" || pinInput.length >= 4) {
+    if (pinInput === "8492" || pinInput === "8291" || pinInput.length >= 4) {
       setIsVerified(true);
       setTimeout(() => {
         setIsVerifyModalOpen(false);
-      }, 1500);
+        setIsReceiptModalOpen(true);
+      }, 900);
     }
+  };
+
+  const handleAddNeedCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return;
+    setNeeds((prev) => [
+      ...prev,
+      {
+        category: newCatName.trim(),
+        urgency: newCatUrgency as any,
+        neededKg: Number(newCatKg) || 20,
+        receivedKg: 0,
+        gapKg: Number(newCatKg) || 20,
+        temperatureRequired: newCatTemp,
+      },
+    ]);
+    setIsAddNeedModalOpen(false);
   };
 
   return (
@@ -160,8 +199,39 @@ export default function RecipientDashboardPage() {
         </div>
       </div>
 
-      {/* 2. Interactive Capacity Slider & Telemetry Module */}
-      <div className="bg-white rounded-3xl border border-resq-border p-6 shadow-card space-y-4">
+      {/* Tab Switcher */}
+      <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl w-fit">
+        <button
+          onClick={() => setActiveTab("INTAKE")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "INTAKE"
+              ? "bg-white text-resq-navy shadow-sm"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          Shelter Intake Terminal
+        </button>
+        <button
+          onClick={() => setActiveTab("LEADERBOARD")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            activeTab === "LEADERBOARD"
+              ? "bg-amber-500 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <Coins className="w-3.5 h-3.5" />
+          <span>Leaderboard & Token Rewards</span>
+        </button>
+      </div>
+
+      {activeTab === "LEADERBOARD" ? (
+        <div className="space-y-4">
+          <LeaderboardAndTokenHub currentRole="RECIPIENT" />
+        </div>
+      ) : (
+        <>
+          {/* 2. Interactive Capacity Slider & Telemetry Module */}
+          <div className="bg-white rounded-3xl border border-resq-border p-6 shadow-card space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="p-2 rounded-xl bg-emerald-50 text-resq-green">
@@ -316,6 +386,28 @@ export default function RecipientDashboardPage() {
                 </div>
               </div>
 
+              {/* Handshake Security PIN Display (Auto-Generated by Food Donor) */}
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-black uppercase text-amber-900 tracking-wider block">
+                      Handshake Delivery PIN (Auto-Generated by Food Donor)
+                    </span>
+                    <p className="text-xs text-slate-600 mt-0.5">
+                      Provide this 4-digit code to courier <strong>{rescue.driverName}</strong> upon physical handoff to release delivery.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xl font-black text-amber-900 bg-amber-200/90 px-4 py-1.5 rounded-xl tracking-widest border border-amber-300 shadow-sm">
+                    {rescue.pin || "8492"}
+                  </span>
+                </div>
+              </div>
+
               {/* Action Buttons */}
               <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
                 <a
@@ -337,13 +429,21 @@ export default function RecipientDashboardPage() {
             </div>
           ))}
 
-          {/* Mini Live Map for Recipient */}
-          <div className="rounded-3xl overflow-hidden border border-resq-border shadow-card bg-slate-900 h-64">
+          {/* Live In-Transit Corridor Radar for Recipient */}
+          <div className="rounded-3xl overflow-hidden border border-resq-border shadow-card bg-slate-900 p-4 space-y-3">
+            <div className="flex items-center justify-between text-white text-xs px-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="font-bold text-sm">Live Dispatch Corridor Radar</span>
+              </div>
+              <span className="text-[11px] text-slate-400">Old Airport Road Sector • Indiranagar Hub</span>
+            </div>
             <RescueNetworkMap
               markers={mapMarkers}
-              centerLat={12.966}
-              centerLng={77.648}
-              zoomLevel={14}
+              centerLat={12.971}
+              centerLng={77.646}
+              zoomLevel={1.2}
+              heightClass="h-80"
               interactive={true}
             />
           </div>
@@ -361,10 +461,8 @@ export default function RecipientDashboardPage() {
               </p>
             </div>
             <button
-              onClick={() => {
-                alert("Need request dialog opened: update your required food types.");
-              }}
-              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-resq-navy text-xs font-bold flex items-center gap-1"
+              onClick={() => setIsAddNeedModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-resq-navy text-xs font-bold flex items-center gap-1 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Add Category
@@ -440,6 +538,8 @@ export default function RecipientDashboardPage() {
           </div>
         </div>
       </div>
+      </>
+      )}
 
       {/* 4. PIN Dropoff Verification Modal */}
       {isVerifyModalOpen && (
@@ -463,19 +563,24 @@ export default function RecipientDashboardPage() {
             </div>
 
             <p className="text-xs text-slate-500">
-              Ask driver <strong>Rahul Sharma</strong> for their 4-digit security PIN or confirm delivery receipt:
+              Enter the 4-digit Handshake Delivery PIN auto-sent from the Food Donor to complete custody handoff:
             </p>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 block">
-                Driver Security PIN (Demo: 8291)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 block">
+                  Delivery Handshake PIN (Code: 8492)
+                </label>
+                <span className="text-[10px] font-mono text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-bold">
+                  Donor Generated
+                </span>
+              </div>
               <input
                 type="text"
                 maxLength={4}
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value)}
-                placeholder="Enter 4-digit PIN"
+                placeholder="8492"
                 className="w-full px-4 py-3 rounded-2xl border border-resq-border text-center text-xl font-mono font-black tracking-widest focus:ring-2 focus:ring-resq-green focus:outline-none"
               />
             </div>
@@ -483,7 +588,7 @@ export default function RecipientDashboardPage() {
             {isVerified && (
               <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>Dropoff verified successfully! Receipt generated.</span>
+                <span>Dropoff verified successfully! Opening digital receipt...</span>
               </div>
             )}
 
@@ -504,6 +609,134 @@ export default function RecipientDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* 5. Add Shelter Need Category Modal */}
+      {isAddNeedModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-resq-navy-dark/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-resq-border p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-resq-border pb-3">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600">
+                  <Plus className="w-4 h-4" />
+                </span>
+                <h3 className="text-base font-black text-resq-navy">
+                  Add Shelter Food Intake Need
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsAddNeedModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddNeedCategory} className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Food Category / Item Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newCatName}
+                  onChange={(e) => setNewCatName(e.target.value)}
+                  placeholder="e.g. Fresh Dairy, Lentil Soups, Rice Bags"
+                  className="w-full p-2.5 rounded-xl border border-resq-border font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    Daily Requirement (KG)
+                  </label>
+                  <input
+                    type="number"
+                    min={5}
+                    max={200}
+                    required
+                    value={newCatKg}
+                    onChange={(e) => setNewCatKg(Number(e.target.value))}
+                    className="w-full p-2.5 rounded-xl border border-resq-border font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    Urgency Priority
+                  </label>
+                  <select
+                    value={newCatUrgency}
+                    onChange={(e) => setNewCatUrgency(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-resq-border font-medium"
+                  >
+                    <option value="CRITICAL">CRITICAL</option>
+                    <option value="HIGH">HIGH</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="LOW">LOW</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Storage Facility Available
+                </label>
+                <select
+                  value={newCatTemp}
+                  onChange={(e) => setNewCatTemp(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-resq-border font-medium"
+                >
+                  <option value="HOT_HOLD (>60°C)">HOT_HOLD (&gt;60°C Steam Tables)</option>
+                  <option value="COLD_CHAIN (<4°C)">COLD_CHAIN (&lt;4°C Refrigeration)</option>
+                  <option value="ROOM_TEMP">ROOM_TEMP (Pantry Storage)</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsAddNeedModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-resq-border text-slate-600 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-resq-navy hover:bg-resq-navy-dark text-white font-bold"
+                >
+                  Add Requirement
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Digital Receipt Modal */}
+      <DigitalReceiptModal
+        isOpen={isReceiptModalOpen}
+        onClose={() => setIsReceiptModalOpen(false)}
+        rescue={{
+          id: "RF-10283",
+          foodName: "Paneer Butter Masala, Jeera Rice & Garlic Naan",
+          quantityKg: 30,
+          donorName: "GreenFork Restaurant",
+          recipientName: "Hope Community Shelter",
+          driverName: "Rahul Sharma",
+          deliveredAt: new Date().toLocaleTimeString(),
+          mealsFed: 120,
+          co2eAvoidedKg: 75,
+        }}
+      />
     </div>
+  );
+}
+
+export default function RecipientDashboardPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-400">Loading shelter intake...</div>}>
+      <RecipientDashboardContent />
+    </Suspense>
   );
 }

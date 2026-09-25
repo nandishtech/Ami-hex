@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Truck,
   MapPin,
@@ -15,9 +16,17 @@ import {
 } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 
-export default function RescuesListPage() {
+function RescuesListContent() {
+  const searchParams = useSearchParams();
   const [filter, setFilter] = useState("ALL");
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const statusParam = searchParams?.get("status");
+    if (statusParam) {
+      setFilter(statusParam.toUpperCase());
+    }
+  }, [searchParams]);
 
   const rescues = [
     {
@@ -188,5 +197,13 @@ export default function RescuesListPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function RescuesListPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-400">Loading rescue operations...</div>}>
+      <RescuesListContent />
+    </Suspense>
   );
 }

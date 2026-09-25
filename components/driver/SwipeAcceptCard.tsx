@@ -11,6 +11,8 @@ import {
   QrCode,
   Sparkles,
   Phone,
+  AlertTriangle,
+  Radio,
 } from "lucide-react";
 import { realtime } from "@/lib/realtime";
 
@@ -53,7 +55,8 @@ export default function SwipeAcceptCard({
 }: SwipeAcceptCardProps) {
   const [driverStatus, setDriverStatus] = useState<"AVAILABLE" | "BUSY" | "OFFLINE">("AVAILABLE");
   const [stage, setStage] = useState<"NEW_REQUEST" | "ACCEPTED" | "ARRIVED" | "PICKED_UP" | "DELIVERED">("NEW_REQUEST");
-  const [isSwiping, setIsSwiping] = useState(false);
+  const [driverDistanceKm, setDriverDistanceKm] = useState<number>(2.4);
+  const isWithin10Km = driverDistanceKm <= 10;
 
   const handleAccept = () => {
     setStage("ACCEPTED");
@@ -151,11 +154,60 @@ export default function SwipeAcceptCard({
         <div className="flex items-center justify-between pt-2 border-t border-slate-200 text-xs text-resq-secondary font-semibold">
           <div className="flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-slate-400" />
-            <span>{rescue.distanceKm} KM total</span>
+            <span>{rescue.distanceKm} KM Corridor</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
             <span>{rescue.etaMinutes} mins ETA</span>
+          </div>
+        </div>
+
+        {/* 10 KM Proximity Range Gate Banner */}
+        <div className={`p-3 rounded-2xl border text-xs space-y-1.5 ${
+          isWithin10Km
+            ? "bg-emerald-50 border-emerald-200 text-emerald-950"
+            : "bg-red-50 border-red-200 text-red-950"
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 font-bold">
+              <Radio className={`w-3.5 h-3.5 ${isWithin10Km ? "text-emerald-600 animate-pulse" : "text-red-500"}`} />
+              <span>Courier Proximity: {driverDistanceKm} KM away</span>
+            </div>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+              isWithin10Km
+                ? "bg-emerald-200 text-emerald-900"
+                : "bg-red-200 text-red-900"
+            }`}>
+              {isWithin10Km ? "Eligible (<10 KM)" : "Out of Range (>10 KM)"}
+            </span>
+          </div>
+          <p className="text-[11px] leading-tight opacity-80">
+            {isWithin10Km
+              ? "✓ You are within the 10 KM rescue dispatch radius and eligible to accept this booking."
+              : "⛔ Only couriers stationed within 10 KM can receive this booking to protect hot/cold food safety."}
+          </p>
+
+          {/* Quick Range Simulation Buttons for Evaluation */}
+          <div className="pt-1 flex items-center gap-2">
+            <span className="text-[10px] text-slate-500 font-bold">Test Range:</span>
+            <button
+              type="button"
+              onClick={() => setDriverDistanceKm(2.4)}
+              className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
+                driverDistanceKm <= 10 ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-700"
+              }`}
+            >
+              2.4 KM (In Range)
+            </button>
+            <button
+              type="button"
+              onClick={() => setDriverDistanceKm(14.8)}
+              className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
+                driverDistanceKm > 10 ? "bg-red-600 text-white" : "bg-slate-200 text-slate-700"
+              }`}
+            >
+              14.8 KM (Out of Range)
+            </button>
           </div>
         </div>
       </div>
@@ -165,9 +217,18 @@ export default function SwipeAcceptCard({
         {stage === "NEW_REQUEST" && (
           <button
             onClick={handleAccept}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-resq-blue to-resq-green text-white font-black text-sm flex items-center justify-center gap-2 shadow-glow active:scale-95 transition-all"
+            disabled={!isWithin10Km}
+            className={`w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-glow active:scale-95 transition-all ${
+              isWithin10Km
+                ? "bg-gradient-to-r from-resq-blue to-resq-green text-white hover:opacity-95"
+                : "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
+            }`}
           >
-            <span>SWIPE / TAP TO ACCEPT RESCUE</span>
+            <span>
+              {isWithin10Km
+                ? "ACCEPT RESCUE BOOKING (<10 KM)"
+                : "CANNOT ACCEPT: OUTSIDE 10 KM RADIUS"}
+            </span>
             <ArrowRight className="w-5 h-5" />
           </button>
         )}

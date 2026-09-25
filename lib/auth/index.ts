@@ -39,7 +39,25 @@ export const DEMO_USERS: Record<UserRole, UserSession> = {
     role: "ADMIN",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
     organizationId: "org-city-ops",
-    organizationName: "Metropolitan Food Rescue Authority",
+    organizationName: "HopePlate Central Authority",
+  },
+};
+
+/**
+ * Permanent Administrator Credentials
+ * Username: admin | Password: admin123
+ */
+export const PERMANENT_ADMIN = {
+  username: "admin",
+  password: "admin123",
+  user: {
+    id: "admin-master",
+    name: "Platform Administrator",
+    email: "admin@hopeplate.org",
+    role: "ADMIN" as UserRole,
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+    organizationId: "org-hopeplate-hq",
+    organizationName: "HopePlate Central Authority",
   },
 };
 
@@ -65,11 +83,12 @@ export function getRoleRedirectPath(role: UserRole): string {
 }
 
 /**
- * Retrieves the currently active user session from client storage
+ * Retrieves the currently active user session from client storage.
+ * Returns null if the user is unauthenticated.
  */
-export function getActiveSession(): UserSession {
+export function getActiveSession(): UserSession | null {
   if (typeof window === "undefined") {
-    return DEMO_USERS.DONOR;
+    return null;
   }
 
   try {
@@ -78,10 +97,17 @@ export function getActiveSession(): UserSession {
       return JSON.parse(raw);
     }
   } catch (e) {
-    console.warn("Session read failed, defaulting to DONOR");
+    console.warn("Session read failed");
   }
 
-  return DEMO_USERS.DONOR;
+  return null;
+}
+
+/**
+ * Helper to check if a user is authenticated
+ */
+export function isAuthenticated(): boolean {
+  return getActiveSession() !== null;
 }
 
 /**
